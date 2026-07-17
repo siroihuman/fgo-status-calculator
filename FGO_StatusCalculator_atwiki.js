@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "1.1.6";
+  const VERSION = "1.1.7";
 
   const RARITY = {
     1: { base: 1, label: "C", initHp: 1500, maxHp: 7500, initAtk: 1000, maxAtk: 5500, normal: [20, 30, 40, 50, 60], grail: [70, 80, 90, 100, 120] },
@@ -75,6 +75,11 @@
     quickSupport: { label: "Quick補助", factor: null, targets: null, wiki: "BGCOLOR(#AF9):補助Ｑ", cardWiki: "BGCOLOR(#AF9):Quick" }
   };
 
+  const AFFINITIES = ["天", "地", "人", "星", "獣"];
+  const POLICIES = ["秩序", "中立", "混沌"];
+  const PERSONALITIES = ["善", "中庸", "悪", "狂", "星", "獣", "夏", "花嫁"];
+  const GENDERS = ["男性", "女性", "-"];
+
   const RANK = {
     "EX": { normal: 1.04, dr: 0.50 }, "A++": { normal: 1.03, dr: 0.55 },
     "A+": { normal: 1.025, dr: 0.575 }, "A": { normal: 1.02, dr: 0.60 },
@@ -129,6 +134,10 @@
     const artsHits = optionalNumber(raw.artsHits);
     const npHits = optionalNumber(raw.npHits);
     const type = raw.type === "magic" ? "magic" : "physical";
+    const affinity = AFFINITIES.includes(raw.affinity) ? raw.affinity : AFFINITIES[0];
+    const policy = POLICIES.includes(raw.policy) ? raw.policy : POLICIES[0];
+    const personality = PERSONALITIES.includes(raw.personality) ? raw.personality : PERSONALITIES[0];
+    const gender = GENDERS.includes(raw.gender) ? raw.gender : GENDERS[0];
 
     const initialHp = roundDown(rarity.initHp * classData.hp * tendency.hp * end, 0);
     const maxHp = roundDown(rarity.maxHp * classData.hp * tendency.hp * end, 0);
@@ -189,6 +198,10 @@
       tendency: raw.tendency || "平均",
       growth: growthName,
       type,
+      affinity,
+      policy,
+      personality,
+      gender,
       quickCards: qCards,
       artsCards,
       busterCards: bCards,
@@ -276,13 +289,6 @@
   function buildNaCell(result) {
     const proper = result.properNa === null ? "計算不可" : format(result.properNa, 2);
     const normal = result.finalNormalNa === null ? "計算不可" : format(result.finalNormalNa, 2);
-    if (result.separateNp) {
-      const np = result.finalNpNa === null ? "計算不可" : format(result.finalNpNa, 2);
-      const normalNote = result.properNa !== null && result.finalNormalNa !== result.properNa
-        ? `通常攻撃時。適正値：${proper}`
-        : "通常攻撃時";
-      return `${normal}&footnote(${normalNote})&br()${np}&footnote(宝具攻撃時)`;
-    }
     if (result.properNa !== null && result.finalNormalNa !== result.properNa) {
       return `${normal}&footnote(適正値：${proper})`;
     }
@@ -290,7 +296,12 @@
   }
 
   function buildNaLine(result) {
-    return `|N/A&footnote(攻撃時のNP上昇基礎値)|>|>|>|>|${buildNaCell(result)}|N/D&footnote(攻撃を受けた際のNP上昇基礎値)|${format(result.nd, 2)}|`;
+    const normal = buildNaCell(result);
+    if (result.separateNp) {
+      const np = result.finalNpNa === null ? "計算不可" : format(result.finalNpNa, 2);
+      return `|N/A&footnote(攻撃時のNP上昇基礎値)|>|>|>|${normal}|${np}|N/D&footnote(攻撃を受けた際のNP上昇基礎値)|${format(result.nd, 2)}|`;
+    }
+    return `|N/A&footnote(攻撃時のNP上昇基礎値)|>|>|>|>|${normal}|N/D&footnote(攻撃を受けた際のNP上昇基礎値)|${format(result.nd, 2)}|`;
   }
 
   function rankBarCount(rank) {
@@ -360,6 +371,29 @@
     return text.slice(0, sectionStart) + replacedSection + text.slice(sectionEnd);
   }
 
+  function buildTraitLine(line, result) {
+    const cells = line.split("|");
+    const traitCellIndex = cells.length - 2;
+    const current = String(cells[traitCellIndex] || "").replace(/^LEFT:/, "");
+    const parts = current.split("/").map((trait) => trait.trim());
+    const emptyCount = parts.filter((trait) => !trait).length;
+    const managedTraits = new Set([
+      "男性", "女性", "性別不明",
+      "秩序", "中立", "混沌",
+      "善", "中庸", "悪", "狂", "星", "獣", "夏", "花嫁",
+      "天の力", "地の力", "人の力", "星の力", "獣の力"
+    ]);
+    const traits = parts.filter((trait) => trait && !managedTraits.has(trait));
+    const selected = [result.input.gender === "-" ? "性別不明" : result.input.gender, result.input.policy];
+    if (!["狂", "星", "夏", "花嫁"].includes(result.input.personality)) selected.push(result.input.personality);
+    if (result.input.affinity !== "星") selected.push(`${result.input.affinity}の力`);
+    let anchor = traits.indexOf("人型");
+    if (anchor < 0) anchor = traits.indexOf("サーヴァント");
+    traits.splice(anchor < 0 ? 0 : anchor + 1, 0, ...selected);
+    cells[traitCellIndex] = `LEFT:${traits.concat(Array(emptyCount).fill("")).join(" / ")}`;
+    return cells.join("|");
+  }
+
   function replaceSource(source, result) {
     let text = String(source || "").replace(/\r\n?/g, "\n");
     const report = { replaced: [], missing: [] };
@@ -392,7 +426,12 @@
 
     text = replaceLine(text,
       /^\|BGCOLOR\(#e6e6fa\):相性\|[^\n]*\|宝具\|[^|\n]*\|$/mi,
-      (line) => replaceLastCell(line, result.npType.wiki), "隠しステータスの宝具種別", report);
+      (line) => {
+        const cells = line.split("|");
+        cells[2] = result.input.affinity;
+        cells[cells.length - 2] = result.npType.wiki;
+        return cells.join("|");
+      }, "相性・隠しステータスの宝具種別", report);
     text = replaceNpCardRows(text, result, report);
 
     text = replaceLine(text,
@@ -400,9 +439,12 @@
       (line) => {
         const cells = line.split("|");
         cells[2] = result.input.growth;
+        cells[4] = result.input.policy;
+        cells[5] = result.input.personality;
+        cells[6] = result.input.gender;
         cells[cells.length - 2] = format(result.sr, 1);
         return cells.join("|");
-      }, "成長・スター発生率", report);
+      }, "成長・方針・性格・性別・スター発生率", report);
     text = replaceLine(text,
       /^\|ヒット数\|.*\|スター集中度\|[^|\n]*\|$/m,
       (line) => replaceLastCell(line, result.sw), "スター集中度", report);
@@ -421,6 +463,8 @@
     text = replaceLine(text,
       /^\|N\/A&footnote\([^\n]*\)\|.*\|N\/D&footnote\([^\n]*\)\|[^|\n]*\|$/m,
       buildNaLine(result), "N/A・N/D", report);
+    text = replaceLine(text, /^\|特性\|[^\n]*\|$/m,
+      (line) => buildTraitLine(line, result), "特性の性別・方針・性格・相性", report);
 
     text = replaceLine(text, /^\|\s*筋力\s*\|[^\n]*\|\s*耐久\s*\|[^\n]*$/m,
       buildParameterRow("筋力", result.input.strengthRank, " ", "耐久", result.input.enduranceRank), "筋力・耐久パラメーター", report);
@@ -478,7 +522,7 @@
       .fsc-title{margin:0 0 4px;font-size:22px}.fsc-lead{margin:0 0 16px;color:#526579}
       .fsc-section{background:#fff;border:1px solid #ccd9e5;border-radius:9px;padding:14px;margin:12px 0}
       .fsc-section h3{font-size:17px;margin:0 0 12px;border-left:5px solid #477fad;padding-left:9px}
-      .fsc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}
+      .fsc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}.fsc-grid-secondary{margin-top:10px;padding-top:10px;border-top:1px solid #d9e3ec}
       .fsc-command-rows{display:flex;flex-direction:column;gap:10px}.fsc-command-row{display:grid;gap:10px}
       .fsc-command-cards{grid-template-columns:repeat(4,minmax(120px,1fr))}.fsc-command-hits{grid-template-columns:repeat(5,minmax(110px,1fr))}
       .fsc-field{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:13px}
@@ -511,6 +555,11 @@
         ${field("ステータス傾向", select("tendency", Object.keys(TENDENCY).map((v)=>[v,v]), "平均"))}
         ${field("成長タイプ", select("growth", Object.keys(GROWTH).map((v)=>[v,v]), "平均"))}
         ${field("攻撃タイプ", select("type", [["physical","物理"],["magic","魔術"]], "physical"))}
+      </div><div class="fsc-grid fsc-grid-secondary">
+        ${field("相性", select("affinity", AFFINITIES.map((v)=>[v,v]), "天"))}
+        ${field("方針", select("policy", POLICIES.map((v)=>[v,v]), "秩序"))}
+        ${field("性格", select("personality", PERSONALITIES.map((v)=>[v,v]), "善"))}
+        ${field("性別", select("gender", GENDERS.map((v)=>[v,v]), "男性"))}
       </div></section>
       <section class="fsc-section"><h3>コマンドカード・Hit数</h3><div class="fsc-command-rows">
         <div class="fsc-command-row fsc-command-cards">
@@ -559,6 +608,8 @@
     const getInput = () => ({
       rarity: query('[name="rarity"]').value, classKey: query('[name="classKey"]').value,
       tendency: query('[name="tendency"]').value, growth: query('[name="growth"]').value, type: query('[name="type"]').value,
+      affinity: query('[name="affinity"]').value, policy: query('[name="policy"]').value,
+      personality: query('[name="personality"]').value, gender: query('[name="gender"]').value,
       quickCards: query('[name="quickCards"]').value, artsCards: query('[name="artsCards"]').value, busterCards: query('[name="busterCards"]').value,
       quickHits: query('[name="quickHits"]').value, artsHits: query('[name="artsHits"]').value, busterHits: query('[name="busterHits"]').value,
       extraHits: query('[name="extraHits"]').value, npHits: query('[name="npHits"]').value, npType: query('[name="npType"]').value,
