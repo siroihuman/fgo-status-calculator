@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "1.1.0";
+  const VERSION = "1.1.1";
 
   const RARITY = {
     1: { base: 1, label: "C", initHp: 1500, maxHp: 7500, initAtk: 1000, maxAtk: 5500, normal: [20, 30, 40, 50, 60], grail: [70, 80, 90, 100, 120] },
@@ -425,7 +425,7 @@
     const classOptions = Object.entries(CLASS).map(([key, value]) => [key, `${key}：${value.name}`]);
     root.innerHTML = `<form class="fsc-shell" autocomplete="on">
       <h2 class="fsc-title">FGO ステータス自動計算機</h2>
-      <p class="fsc-lead">入力内容からステータスを計算し、既存のPukiWikiコードへ計算セルだけを反映します。入力内容はこのブラウザに自動保存されます。</p>
+      <p class="fsc-lead">入力内容からステータスを計算し、既存のPukiWikiコードへ計算セルだけを反映します。同じタブでページを再読み込みした場合は入力内容を復元します。</p>
       <section class="fsc-section"><h3>基本設定</h3><div class="fsc-grid">
         ${field("レアリティ", select("rarity", [[0,"★0"],[1,"★1"],[2,"★2"],[3,"★3"],[4,"★4"],[5,"★5"]], 1))}
         ${field("クラス", select("classKey", classOptions, "弓"))}
@@ -476,7 +476,7 @@
     </form>`;
 
     const query = (selector) => root.querySelector(selector);
-    const storageKey = `fgo-status-calculator:${location.origin}${location.pathname}`;
+    const statePrefix = "fgo-status-calculator:";
     const getInput = () => ({
       rarity: query('[name="rarity"]').value, classKey: query('[name="classKey"]').value,
       tendency: query('[name="tendency"]').value, growth: query('[name="growth"]').value, type: query('[name="type"]').value,
@@ -493,7 +493,7 @@
     function saveState() {
       try {
         const state = Object.assign({}, getInput(), { sourceCode: query('[name="sourceCode"]').value });
-        localStorage.setItem(storageKey, JSON.stringify(state));
+        window.name = statePrefix + JSON.stringify(state);
       } catch (error) {
         // 保存機能を使用できない環境でも計算機本体は継続して動作させる。
       }
@@ -501,7 +501,8 @@
 
     function restoreState() {
       try {
-        const state = JSON.parse(localStorage.getItem(storageKey) || "null");
+        if (window.name.indexOf(statePrefix) !== 0) return;
+        const state = JSON.parse(window.name.slice(statePrefix.length));
         if (!state || typeof state !== "object") return;
         Object.entries(state).forEach(([name, value]) => {
           const element = query(`[name="${name}"]`);
