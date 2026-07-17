@@ -1,0 +1,1 @@
+# fgo-status-calculator
