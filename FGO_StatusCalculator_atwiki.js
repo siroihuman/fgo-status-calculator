@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "1.1.5";
+  const VERSION = "1.1.6";
 
   const RARITY = {
     1: { base: 1, label: "C", initHp: 1500, maxHp: 7500, initAtk: 1000, maxAtk: 5500, normal: [20, 30, 40, 50, 60], grail: [70, 80, 90, 100, 120] },
@@ -207,6 +207,7 @@
       rarity,
       classData,
       classIcon: `&ref(${classKey}${rarityMeta.icon}.png,icon/class,width=30)`,
+      classSkillIcon: `&ref(${classKey}${rarityMeta.icon}.png,icon/class,title=${classData.name},height=25,width=25)`,
       cost: rarityMeta.cost,
       initialHp,
       maxHp,
@@ -337,6 +338,28 @@
     return replaced;
   }
 
+  function replaceClassSkillIcons(text, result, report) {
+    const heading = /^\*\*クラススキル[^\n]*$/m.exec(text);
+    if (!heading) {
+      report.missing.push("クラススキルのクラスアイコン");
+      return text;
+    }
+    const sectionStart = heading.index + heading[0].length;
+    const remainder = text.slice(sectionStart);
+    const nextHeading = /^\*\*[^*\n]/m.exec(remainder);
+    const sectionEnd = nextHeading ? sectionStart + nextHeading.index : text.length;
+    const section = text.slice(sectionStart, sectionEnd);
+    const pattern = /&ref\([^,\n]*\.png,icon\/class,title=[^,\n)]*,height=25,width=25\)/g;
+    let count = 0;
+    const replacedSection = section.replace(pattern, () => {
+      count += 1;
+      return result.classSkillIcon;
+    });
+    if (count === 0) report.missing.push("クラススキルのクラスアイコン");
+    else report.replaced.push(`クラススキルのクラスアイコン（${count}箇所）`);
+    return text.slice(0, sectionStart) + replacedSection + text.slice(sectionEnd);
+  }
+
   function replaceSource(source, result) {
     let text = String(source || "").replace(/\r\n?/g, "\n");
     const report = { replaced: [], missing: [] };
@@ -365,6 +388,7 @@
     metaPatterns.forEach(([pattern, replacement, label]) => {
       text = replaceLine(text, pattern, replacement, label, report);
     });
+    text = replaceClassSkillIcons(text, result, report);
 
     text = replaceLine(text,
       /^\|BGCOLOR\(#e6e6fa\):相性\|[^\n]*\|宝具\|[^|\n]*\|$/mi,
