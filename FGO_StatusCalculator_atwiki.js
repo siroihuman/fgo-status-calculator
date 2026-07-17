@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "1.1.1";
+  const VERSION = "1.1.2";
 
   const RARITY = {
     1: { base: 1, label: "C", initHp: 1500, maxHp: 7500, initAtk: 1000, maxAtk: 5500, normal: [20, 30, 40, 50, 60], grail: [70, 80, 90, 100, 120] },
@@ -86,6 +86,12 @@
     return Number.isFinite(number) ? number : fallback;
   }
 
+  function optionalNumber(value) {
+    if (value === "" || value === null || typeof value === "undefined") return null;
+    const number = Number(value);
+    return Number.isFinite(number) ? number : null;
+  }
+
   function format(value, digits) {
     return Number(value).toFixed(digits);
   }
@@ -104,9 +110,9 @@
     const mag = (RANK[raw.magicRank] || RANK["E"]).normal;
     const magDr = (RANK[raw.magicRank] || RANK["E"]).dr;
     const luck = (RANK[raw.luckRank] || RANK["E"]).normal;
-    const artsCards = numberOr(raw.artsCards, 2);
-    const artsHits = numberOr(raw.artsHits, 1);
-    const npHits = numberOr(raw.npHits, 0);
+    const artsCards = optionalNumber(raw.artsCards);
+    const artsHits = optionalNumber(raw.artsHits);
+    const npHits = optionalNumber(raw.npHits);
     const type = raw.type === "magic" ? "magic" : "physical";
 
     const initialHp = roundDown(rarity.initHp * classData.hp * tendency.hp * end, 0);
@@ -125,11 +131,11 @@
     const sw = roundDown(classData.sw * luck, 0);
     const sr = roundDown(classData.sr * agi, 1);
     const dr = roundDown(classData.dr * magDr, 1);
-    const properNa = artsHits > 0 && ARTS_MOD[artsCards]
+    const properNa = artsHits !== null && artsHits > 0 && ARTS_MOD[artsCards]
       ? roundDown(classData.na * ARTS_MOD[artsCards] * mag / artsHits, 2)
       : null;
     const npType = NP_TYPE[raw.npType] || NP_TYPE.none;
-    const rechargeLimit = npType.factor && npHits > 0
+    const rechargeLimit = npType.factor && npHits !== null && npHits > 0
       ? roundDown(15 / (npType.factor * npHits * npType.targets), 2)
       : null;
     const manualNormalEnabled = Boolean(raw.manualNormalEnabled);
@@ -141,13 +147,24 @@
       ? roundDown(numberOr(raw.manualNpNa, rechargeLimit !== null ? rechargeLimit : finalNormalNa), 2)
       : finalNormalNa;
 
-    const qCards = numberOr(raw.quickCards, 1);
-    const bCards = numberOr(raw.busterCards, 2);
+    const qCards = optionalNumber(raw.quickCards);
+    const bCards = optionalNumber(raw.busterCards);
+    const quickHits = optionalNumber(raw.quickHits);
+    const busterHits = optionalNumber(raw.busterHits);
+    const extraHits = optionalNumber(raw.extraHits);
     const warnings = [];
-    if (qCards + artsCards + bCards !== 5) warnings.push("コマンドカード枚数の合計が5枚ではありません。");
-    if (!(artsCards in ARTS_MOD)) warnings.push("Arts枚数は1～3枚で指定してください。");
-    if (artsHits <= 0) warnings.push("Arts Hit数が0のため、通常攻撃N/Aを計算できません。");
-    if (npType.factor && npHits <= 0) warnings.push("攻撃宝具が選択されていますが、宝具Hit数が0です。");
+    if ([qCards, artsCards, bCards].some((value) => value === null)) {
+      warnings.push("コマンドカード枚数を入力してください。");
+    } else if (qCards + artsCards + bCards !== 5) {
+      warnings.push("コマンドカード枚数の合計が5枚ではありません。");
+    }
+    if (artsCards !== null && !(artsCards in ARTS_MOD)) warnings.push("Arts枚数は1～3枚で指定してください。");
+    if ([quickHits, artsHits, busterHits, extraHits, npHits].some((value) => value === null)) {
+      warnings.push("Q/A/B/Ex/宝具のHit数を入力してください。");
+    } else {
+      if (artsHits <= 0) warnings.push("Arts Hit数が0のため、通常攻撃N/Aを計算できません。");
+      if (npType.factor && npHits <= 0) warnings.push("攻撃宝具が選択されていますが、宝具Hit数が0です。");
+    }
 
     const input = Object.assign({}, raw, {
       rarity: requestedRarity,
@@ -159,10 +176,10 @@
       quickCards: qCards,
       artsCards,
       busterCards: bCards,
-      quickHits: numberOr(raw.quickHits, 1),
+      quickHits,
       artsHits,
-      busterHits: numberOr(raw.busterHits, 1),
-      extraHits: numberOr(raw.extraHits, 1),
+      busterHits,
+      extraHits,
       npHits,
       treasureRank: raw.treasureRank || "-"
     });
@@ -331,11 +348,11 @@
       /^\|~\|.*\|DR&footnote\([^\n]*\)\|[^|\n]*\|$/m,
       (line) => {
         const cells = line.split("|");
-        cells[2] = String(result.input.quickHits);
-        cells[3] = String(result.input.artsHits);
-        cells[4] = String(result.input.busterHits);
-        cells[5] = String(result.input.extraHits);
-        cells[6] = String(result.input.npHits);
+        cells[2] = result.input.quickHits === null ? "" : String(result.input.quickHits);
+        cells[3] = result.input.artsHits === null ? "" : String(result.input.artsHits);
+        cells[4] = result.input.busterHits === null ? "" : String(result.input.busterHits);
+        cells[5] = result.input.extraHits === null ? "" : String(result.input.extraHits);
+        cells[6] = result.input.npHits === null ? "" : String(result.input.npHits);
         cells[cells.length - 2] = format(result.dr, 1);
         return cells.join("|");
       }, "Hit数・DR", report);
@@ -427,25 +444,25 @@
       <h2 class="fsc-title">FGO ステータス自動計算機</h2>
       <p class="fsc-lead">入力内容からステータスを計算し、既存のPukiWikiコードへ計算セルだけを反映します。同じタブでページを再読み込みした場合は入力内容を復元します。</p>
       <section class="fsc-section"><h3>基本設定</h3><div class="fsc-grid">
-        ${field("レアリティ", select("rarity", [[0,"★0"],[1,"★1"],[2,"★2"],[3,"★3"],[4,"★4"],[5,"★5"]], 1))}
-        ${field("クラス", select("classKey", classOptions, "弓"))}
+        ${field("レアリティ", select("rarity", [[0,"★0"],[1,"★1"],[2,"★2"],[3,"★3"],[4,"★4"],[5,"★5"]], 5))}
+        ${field("クラス", select("classKey", classOptions, "剣"))}
         ${field("ステータス傾向", select("tendency", Object.keys(TENDENCY).map((v)=>[v,v]), "平均"))}
         ${field("成長タイプ", select("growth", Object.keys(GROWTH).map((v)=>[v,v]), "平均"))}
         ${field("攻撃タイプ", select("type", [["physical","物理"],["magic","魔術"]], "physical"))}
       </div></section>
       <section class="fsc-section"><h3>コマンドカード・Hit数</h3><div class="fsc-command-rows">
         <div class="fsc-command-row fsc-command-cards">
-          ${field("Quick枚数", numberInput("quickCards",1,0,1))}${field("Arts枚数", numberInput("artsCards",2,1,1))}${field("Buster枚数", numberInput("busterCards",2,0,1))}
+          ${field("Quick枚数", numberInput("quickCards","",0,1))}${field("Arts枚数", numberInput("artsCards","",1,1))}${field("Buster枚数", numberInput("busterCards","",0,1))}
           ${field("宝具の種類", select("npType", Object.entries(NP_TYPE).map(([k,v])=>[k,v.label]), "artsAll"), "15％以下補正値の計算に使用")}
         </div>
         <div class="fsc-command-row fsc-command-hits">
-          ${field("Quick Hit数", numberInput("quickHits",4,0,1))}${field("Arts Hit数", numberInput("artsHits",2,1,1))}${field("Buster Hit数", numberInput("busterHits",3,0,1))}
-          ${field("Ex Hit数", numberInput("extraHits",4,0,1))}${field("宝具 Hit数", numberInput("npHits",5,0,1))}
+          ${field("Quick Hit数", numberInput("quickHits","",0,1))}${field("Arts Hit数", numberInput("artsHits","",1,1))}${field("Buster Hit数", numberInput("busterHits","",0,1))}
+          ${field("Ex Hit数", numberInput("extraHits","",0,1))}${field("宝具 Hit数", numberInput("npHits","",0,1))}
         </div>
       </div></section>
       <section class="fsc-section"><h3>パラメーター</h3><div class="fsc-grid">
-        ${field("筋力", select("strengthRank",rankOptions,"E"))}${field("耐久", select("enduranceRank",rankOptions,"E"))}${field("敏捷", select("agilityRank",rankOptions,"D"))}
-        ${field("魔力", select("magicRank",rankOptions,"C"))}${field("幸運", select("luckRank",rankOptions,"E"))}${field("宝具", select("treasureRank",rankOptions,"B+"))}
+        ${field("筋力", select("strengthRank",rankOptions,"A"))}${field("耐久", select("enduranceRank",rankOptions,"A"))}${field("敏捷", select("agilityRank",rankOptions,"A"))}
+        ${field("魔力", select("magicRank",rankOptions,"A"))}${field("幸運", select("luckRank",rankOptions,"A"))}${field("宝具", select("treasureRank",rankOptions,"A"))}
       </div></section>
       <section class="fsc-section"><h3>N/A補正</h3>
         <div class="fsc-checks">
@@ -476,7 +493,7 @@
     </form>`;
 
     const query = (selector) => root.querySelector(selector);
-    const statePrefix = "fgo-status-calculator:";
+    const statePrefix = "fgo-status-calculator:v2:";
     const getInput = () => ({
       rarity: query('[name="rarity"]').value, classKey: query('[name="classKey"]').value,
       tendency: query('[name="tendency"]').value, growth: query('[name="growth"]').value, type: query('[name="type"]').value,
