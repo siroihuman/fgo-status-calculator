@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "1.1.7";
+  const VERSION = "1.1.8";
 
   const RARITY = {
     1: { base: 1, label: "C", initHp: 1500, maxHp: 7500, initAtk: 1000, maxAtk: 5500, normal: [20, 30, 40, 50, 60], grail: [70, 80, 90, 100, 120] },
@@ -381,12 +381,16 @@
       "男性", "女性", "性別不明",
       "秩序", "中立", "混沌",
       "善", "中庸", "悪", "狂", "星", "獣", "夏", "花嫁",
-      "天の力", "地の力", "人の力", "星の力", "獣の力"
+      "天の力", "地の力", "人の力", "星の力", "獣の力",
+      "セイバー", "アーチャー", "ランサー", "ライダー", "キャスター", "アサシン", "バーサーカー",
+      "シールダー", "ルーラー", "アヴェンジャー", "ムーンキャンサー", "アルターエゴ", "フォーリナー", "プリテンダー", "ビースト"
     ]);
     const traits = parts.filter((trait) => trait && !managedTraits.has(trait));
     const selected = [result.input.gender === "-" ? "性別不明" : result.input.gender, result.input.policy];
     if (!["狂", "星", "夏", "花嫁"].includes(result.input.personality)) selected.push(result.input.personality);
     if (result.input.affinity !== "星") selected.push(`${result.input.affinity}の力`);
+    const omittedClasses = new Set(["アーチャー", "ランサー", "アサシン", "シールダー", "アヴェンジャー", "フォーリナー", "プリテンダー"]);
+    if (!omittedClasses.has(result.classData.name)) selected.push(result.classData.name);
     let anchor = traits.indexOf("人型");
     if (anchor < 0) anchor = traits.indexOf("サーヴァント");
     traits.splice(anchor < 0 ? 0 : anchor + 1, 0, ...selected);
