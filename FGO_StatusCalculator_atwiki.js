@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "1.1.3";
+  const VERSION = "1.1.4";
 
   const RARITY = {
     1: { base: 1, label: "C", initHp: 1500, maxHp: 7500, initAtk: 1000, maxAtk: 5500, normal: [20, 30, 40, 50, 60], grail: [70, 80, 90, 100, 120] },
@@ -55,15 +55,15 @@
 
   const ARTS_MOD = { 1: 1.50, 2: 1.125, 3: 1.00 };
   const NP_TYPE = {
-    busterAll: { label: "Buster全体", factor: null, targets: null, wiki: "BGCOLOR(#F88):全体Ｂ" },
-    busterSingle: { label: "Buster単体", factor: null, targets: null, wiki: "BGCOLOR(#F88):単体Ｂ" },
-    busterSupport: { label: "Buster補助", factor: null, targets: null, wiki: "BGCOLOR(#F88):補助Ｂ" },
-    artsAll: { label: "Arts全体", factor: 3, targets: 3, wiki: "BGCOLOR(#9AF):全体Ａ" },
-    artsSingle: { label: "Arts単体", factor: 3, targets: 1, wiki: "BGCOLOR(#9AF):単体Ａ" },
-    artsSupport: { label: "Arts補助", factor: null, targets: null, wiki: "BGCOLOR(#9AF):補助Ａ" },
-    quickAll: { label: "Quick全体", factor: 1, targets: 3, wiki: "BGCOLOR(#AF9):全体Ｑ" },
-    quickSingle: { label: "Quick単体", factor: 1, targets: 1, wiki: "BGCOLOR(#AF9):単体Ｑ" },
-    quickSupport: { label: "Quick補助", factor: null, targets: null, wiki: "BGCOLOR(#AF9):補助Ｑ" }
+    busterAll: { label: "Buster全体", factor: null, targets: null, wiki: "BGCOLOR(#F88):全体Ｂ", cardWiki: "BGCOLOR(#F88):Buster" },
+    busterSingle: { label: "Buster単体", factor: null, targets: null, wiki: "BGCOLOR(#F88):単体Ｂ", cardWiki: "BGCOLOR(#F88):Buster" },
+    busterSupport: { label: "Buster補助", factor: null, targets: null, wiki: "BGCOLOR(#F88):補助Ｂ", cardWiki: "BGCOLOR(#F88):Buster" },
+    artsAll: { label: "Arts全体", factor: 3, targets: 3, wiki: "BGCOLOR(#9AF):全体Ａ", cardWiki: "BGCOLOR(#9AF):Arts" },
+    artsSingle: { label: "Arts単体", factor: 3, targets: 1, wiki: "BGCOLOR(#9AF):単体Ａ", cardWiki: "BGCOLOR(#9AF):Arts" },
+    artsSupport: { label: "Arts補助", factor: null, targets: null, wiki: "BGCOLOR(#9AF):補助Ａ", cardWiki: "BGCOLOR(#9AF):Arts" },
+    quickAll: { label: "Quick全体", factor: 1, targets: 3, wiki: "BGCOLOR(#AF9):全体Ｑ", cardWiki: "BGCOLOR(#AF9):Quick" },
+    quickSingle: { label: "Quick単体", factor: 1, targets: 1, wiki: "BGCOLOR(#AF9):単体Ｑ", cardWiki: "BGCOLOR(#AF9):Quick" },
+    quickSupport: { label: "Quick補助", factor: null, targets: null, wiki: "BGCOLOR(#AF9):補助Ｑ", cardWiki: "BGCOLOR(#AF9):Quick" }
   };
 
   const RANK = {
@@ -312,6 +312,18 @@
     return cells.join("|");
   }
 
+  function replaceNpCardRows(text, result, report) {
+    const pattern = /^(\/\/)?\|BGCOLOR\(#(?:F88|9AF|AF9)\):(?:Buster|Arts|Quick)(?=\|)/gmi;
+    let count = 0;
+    const replaced = text.replace(pattern, (match, commentPrefix) => {
+      count += 1;
+      return `${commentPrefix || ""}|${result.npType.cardWiki}`;
+    });
+    if (count === 0) report.missing.push("宝具欄のカード種別");
+    else report.replaced.push(`宝具欄のカード種別（${count}箇所）`);
+    return replaced;
+  }
+
   function replaceSource(source, result) {
     let text = String(source || "").replace(/\r\n?/g, "\n");
     const report = { replaced: [], missing: [] };
@@ -343,6 +355,7 @@
     text = replaceLine(text,
       /^\|BGCOLOR\(#e6e6fa\):相性\|[^\n]*\|宝具\|[^|\n]*\|$/mi,
       (line) => replaceLastCell(line, result.npType.wiki), "隠しステータスの宝具種別", report);
+    text = replaceNpCardRows(text, result, report);
 
     text = replaceLine(text,
       /^\|BGCOLOR\(#e6e6fa\):成長\|.*\|スター発生率\|[^|\n]*\|$/m,
