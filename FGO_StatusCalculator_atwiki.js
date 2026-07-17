@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "1.1.4";
+  const VERSION = "1.1.5";
 
   const RARITY = {
     1: { base: 1, label: "C", initHp: 1500, maxHp: 7500, initAtk: 1000, maxAtk: 5500, normal: [20, 30, 40, 50, 60], grail: [70, 80, 90, 100, 120] },
@@ -9,6 +9,15 @@
     3: { base: 3, label: "R", initHp: 1800, maxHp: 10000, initAtk: 1300, maxAtk: 7000, normal: [30, 40, 50, 60, 70], grail: [80, 90, 100, 120] },
     4: { base: 4, label: "SR", initHp: 2000, maxHp: 12500, initAtk: 1500, maxAtk: 9000, normal: [40, 50, 60, 70, 80], grail: [90, 100, 120] },
     5: { base: 5, label: "SSR", initHp: 2200, maxHp: 15000, initAtk: 1700, maxAtk: 11000, normal: [50, 60, 70, 80, 90], grail: [100, 120] }
+  };
+
+  const RARITY_META = {
+    0: { icon: "銅", cost: 4 },
+    1: { icon: "銅", cost: 3 },
+    2: { icon: "銅", cost: 4 },
+    3: { icon: "銀", cost: 9 },
+    4: { icon: "金", cost: 12 },
+    5: { icon: "金", cost: 16 }
   };
 
   const GRAIL_RATE = {
@@ -104,7 +113,9 @@
     const requestedRarity = numberOr(raw.rarity, 1);
     const baseRarity = requestedRarity === 0 ? 2 : requestedRarity;
     const rarity = RARITY[baseRarity];
-    const classData = CLASS[raw.classKey] || CLASS["剣"];
+    const rarityMeta = RARITY_META[requestedRarity] || RARITY_META[1];
+    const classKey = CLASS[raw.classKey] ? raw.classKey : "剣";
+    const classData = CLASS[classKey];
     const tendency = TENDENCY[raw.tendency] || TENDENCY["平均"];
     const growthName = GROWTH[raw.growth] ? raw.growth : "平均";
     const growthRates = GROWTH[growthName][baseRarity];
@@ -174,7 +185,7 @@
     const input = Object.assign({}, raw, {
       rarity: requestedRarity,
       baseRarity,
-      classKey: raw.classKey || "剣",
+      classKey,
       tendency: raw.tendency || "平均",
       growth: growthName,
       type,
@@ -195,6 +206,8 @@
       input,
       rarity,
       classData,
+      classIcon: `&ref(${classKey}${rarityMeta.icon}.png,icon/class,width=30)`,
+      cost: rarityMeta.cost,
       initialHp,
       maxHp,
       initialAtk,
@@ -343,8 +356,9 @@
       buildStatusRow(result, "ATK"), "ATK行", report);
 
     const metaPatterns = [
-      [/((?:^|\n)\|>\|>\|BGCOLOR\(#e6e6fa\):Class\|>\|>\|)[^|\n]*/m, `$1${result.classData.name}`, "クラス"],
+      [/((?:^|\n)\|>\|>\|BGCOLOR\(#e6e6fa\):Class\|>\|>\|)[^|\n]*/m, `$1${result.classIcon}`, "クラスアイコン"],
       [/(\|>\|BGCOLOR\(#e6e6fa\):Rare\|)[^|\n]*/m, `$1${result.input.rarity}`, "レアリティ"],
+      [/(\|BGCOLOR\(#e6e6fa\):Cost\|)[^|\n]*/m, `$1${result.cost}`, "Cost"],
       [/(\|>\|BGCOLOR\(#e6e6fa\):傾向\|>\|)[^|\n]*/m, `$1${result.input.tendency}`, "ステータス傾向"],
       [/(\|BGCOLOR\(#e6e6fa\):タイプ\|)[^|\n]*/m, `$1${result.input.type === "physical" ? "物理" : "魔術"}`, "タイプ"]
     ];
