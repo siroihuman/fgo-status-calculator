@@ -1,6 +1,6 @@
 # FGO ステータス自動計算機 for atwiki
 
-atwikiのPukiWikiライクモードで使用する、オリジナルFGOサーヴァント用のステータス計算機です。
+atwikiのPukiWikiライクモードで使用する、FGOサーヴァント用のステータス計算機です。
 
 ## 主な機能
 
