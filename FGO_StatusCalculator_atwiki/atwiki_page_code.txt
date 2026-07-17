@@ -1,4 +1,0 @@
-*FGO ステータス自動計算機
-
-&html(<div id="fgo-status-calculator"></div>)
-#include_js(https://cdn.jsdelivr.net/gh/siroihuman/fgo-status-calculator@main/FGO_StatusCalculator_atwiki.js?v=1.1.0)
