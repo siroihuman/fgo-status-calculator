@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "1.1.2";
+  const VERSION = "1.1.3";
 
   const RARITY = {
     1: { base: 1, label: "C", initHp: 1500, maxHp: 7500, initAtk: 1000, maxAtk: 5500, normal: [20, 30, 40, 50, 60], grail: [70, 80, 90, 100, 120] },
@@ -55,11 +55,15 @@
 
   const ARTS_MOD = { 1: 1.50, 2: 1.125, 3: 1.00 };
   const NP_TYPE = {
-    none: { label: "対象外（Buster・補助宝具）", factor: null, targets: null },
-    artsSingle: { label: "Arts単体", factor: 3, targets: 1 },
-    artsAll: { label: "Arts全体", factor: 3, targets: 3 },
-    quickSingle: { label: "Quick単体", factor: 1, targets: 1 },
-    quickAll: { label: "Quick全体", factor: 1, targets: 3 }
+    busterAll: { label: "Buster全体", factor: null, targets: null, wiki: "BGCOLOR(#F88):全体Ｂ" },
+    busterSingle: { label: "Buster単体", factor: null, targets: null, wiki: "BGCOLOR(#F88):単体Ｂ" },
+    busterSupport: { label: "Buster補助", factor: null, targets: null, wiki: "BGCOLOR(#F88):補助Ｂ" },
+    artsAll: { label: "Arts全体", factor: 3, targets: 3, wiki: "BGCOLOR(#9AF):全体Ａ" },
+    artsSingle: { label: "Arts単体", factor: 3, targets: 1, wiki: "BGCOLOR(#9AF):単体Ａ" },
+    artsSupport: { label: "Arts補助", factor: null, targets: null, wiki: "BGCOLOR(#9AF):補助Ａ" },
+    quickAll: { label: "Quick全体", factor: 1, targets: 3, wiki: "BGCOLOR(#AF9):全体Ｑ" },
+    quickSingle: { label: "Quick単体", factor: 1, targets: 1, wiki: "BGCOLOR(#AF9):単体Ｑ" },
+    quickSupport: { label: "Quick補助", factor: null, targets: null, wiki: "BGCOLOR(#AF9):補助Ｑ" }
   };
 
   const RANK = {
@@ -134,7 +138,8 @@
     const properNa = artsHits !== null && artsHits > 0 && ARTS_MOD[artsCards]
       ? roundDown(classData.na * ARTS_MOD[artsCards] * mag / artsHits, 2)
       : null;
-    const npType = NP_TYPE[raw.npType] || NP_TYPE.none;
+    const npTypeKey = NP_TYPE[raw.npType] ? raw.npType : "artsAll";
+    const npType = NP_TYPE[npTypeKey];
     const rechargeLimit = npType.factor && npHits !== null && npHits > 0
       ? roundDown(15 / (npType.factor * npHits * npType.targets), 2)
       : null;
@@ -181,6 +186,7 @@
       busterHits,
       extraHits,
       npHits,
+      npType: npTypeKey,
       treasureRank: raw.treasureRank || "-"
     });
 
@@ -206,6 +212,7 @@
       finalNormalNa,
       separateNp,
       finalNpNa,
+      npType,
       warnings
     };
   }
@@ -332,6 +339,10 @@
     metaPatterns.forEach(([pattern, replacement, label]) => {
       text = replaceLine(text, pattern, replacement, label, report);
     });
+
+    text = replaceLine(text,
+      /^\|BGCOLOR\(#e6e6fa\):相性\|[^\n]*\|宝具\|[^|\n]*\|$/mi,
+      (line) => replaceLastCell(line, result.npType.wiki), "隠しステータスの宝具種別", report);
 
     text = replaceLine(text,
       /^\|BGCOLOR\(#e6e6fa\):成長\|.*\|スター発生率\|[^|\n]*\|$/m,
