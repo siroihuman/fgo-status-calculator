@@ -10,6 +10,8 @@ const core = globalThis.FGOStatusCalculatorCore;
 const calculatorSource = fs.readFileSync("FGO_StatusCalculator_atwiki.js", "utf8");
 assert.match(calculatorSource, /\{ label: "基本", traits: \["ギリシャ神話系男性"\] \}/);
 assert.doesNotMatch(calculatorSource, /label: "追加属性"/);
+assert.match(calculatorSource, /入力した特性：/);
+assert.doesNotMatch(calculatorSource, /基本設定から自動入力：|例：068|例：ヘリオガバルス/);
 
 function sample(overrides) {
   return Object.assign({
@@ -63,6 +65,7 @@ assert.match(generated.text, /page=ヘリオガバルス\/モーション,text=�
 assert.match(generated.text, /#include_cache\(ヘリオガバルス\/モーション\)/);
 assert.doesNotMatch(generated.text, /【ページ名】/);
 assert.match(generated.text, /^\|特性\|.*サーヴァント \/ 人型 \/ 女性 \/ 混沌 \/ 悪 \/ 地の力 \/ バーサーカー \/ 神性 \/ 蛇 \/ 梁山泊 \/ 複数で一騎/m);
+assert.deepEqual(core.parseTraitsFromSource(generated.text), ["サーヴァント", "人型", "女性", "混沌", "悪", "地の力", "バーサーカー", "神性", "蛇", "梁山泊", "複数で一騎"]);
 assert.match(generated.text, /\/\/─┤クラススキル├/);
 assert.match(generated.text, /\/\/─┤絆礼装├/);
 
