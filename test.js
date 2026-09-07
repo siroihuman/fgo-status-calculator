@@ -12,6 +12,10 @@ assert.match(calculatorSource, /\{ label: "基本", traits: \["ギリシャ神�
 assert.doesNotMatch(calculatorSource, /label: "追加属性"/);
 assert.match(calculatorSource, /入力した特性：/);
 assert.doesNotMatch(calculatorSource, /基本設定から自動入力：|例：068|例：ヘリオガバルス/);
+assert.match(calculatorSource, /data-content-action="addClassSkill"/);
+assert.doesNotMatch(calculatorSource, /addOwnedSkill|addNoble|addBond|第四再臨/);
+assert.match(calculatorSource, /効果を追加/);
+assert.match(calculatorSource, /特殊記述を使用/);
 
 function sample(overrides) {
   return Object.assign({
@@ -94,5 +98,69 @@ for (const personality of ["狂", "星", "夏", "花嫁"]) {
   const traitLine = core.replaceSource("", core.calculate(sample({ personality }))).text.match(/^\|特性\|.*$/m)[0];
   assert.ok(traitLine.includes(` / ${personality} / `), `性格「${personality}」を特性欄へ追加する`);
 }
+
+const contentSettings = core.createDefaultContentSettings();
+contentSettings.classSkills = [
+  { name: "対魔力 A", icon: "対魔力.png", effects: [{ text: "自身の弱体耐性をアップ", valueMode: "fixed", values: ["20"] }] },
+  { name: "騎乗 B", icon: "騎乗", effects: [{ text: "自身のQuickカード性能をアップ", valueMode: "fixed", values: ["8"] }] },
+  { name: "神性 A+", icon: "神性.png", effects: [{ text: "自身に与ダメージプラス状態を付与", valueMode: "fixed", values: ["210"] }] },
+  { name: "陣地作成 A", icon: "陣地作成.png", effects: [] },
+  { name: "独自能力 EX", icon: "独自能力.png", effects: [{ raw: true, rawCode: "|~|特殊な効果|50|" }] }
+];
+contentSettings.skills[0].base = {
+  name: "麗しの剣 A", icon: "skill-attack-up.png", ct: "8",
+  effects: [{ text: "自身の攻撃力をアップ[Lv](3T)", valueMode: "level10", values: ["10", "11", "12", "13", "14", "15", "16", "17", "18", "20"] }]
+};
+contentSettings.skills[0].variants[0] = { enabled: true, stage: "2", changeMode: "name", name: "麗しの剣 A+", icon: "", ct: "", effects: [] };
+contentSettings.skills[0].variants[1] = {
+  enabled: true, stage: "3", changeMode: "all", name: "真なる麗しの剣 A++", icon: "skill-damage-up.png", ct: "7",
+  effects: [{ prefix: "＆", text: "宝具威力をアップ", valueMode: "fixed", values: ["30"] }]
+};
+contentSettings.skills[0].upgraded = {
+  enabled: true, name: "麗しの剣 EX", icon: "skill-np-charge.png", ct: "6",
+  effects: [{ text: "自身のNPを増やす[Lv]", valueMode: "level10", values: ["20", "21", "22", "23", "24", "25", "26", "27", "28", "30"] }]
+};
+contentSettings.noble.base = {
+  reading: "エクスカリバー", name: "約束された勝利の剣", rank: "A++", category: "対城宝具",
+  effects: [
+    { text: "敵全体に強力な攻撃[Lv]", valueMode: "np5", values: ["300", "400", "450", "475", "500"] },
+    { prefix: "＆", text: "防御力をダウン<OC:効果UP>(3T)", valueMode: "oc5", values: ["10", "15", "20", "25", "30"] }
+  ]
+};
+contentSettings.noble.variants[1] = { enabled: true, stage: "3", changeMode: "name", reading: "エクスカリバー・モルガン", name: "約束された勝利の剣・黒", rank: "", category: "", effects: [] };
+contentSettings.noble.upgraded = {
+  enabled: true, reading: "エクスカリバー", name: "約束された勝利の剣〔強化後〕", rank: "A++", category: "対城宝具",
+  effects: [{ text: "敵全体に強力な攻撃[Lv]", valueMode: "fixed", values: ["500"] }]
+};
+contentSettings.bond = {
+  name: "遠き理想郷", icon: "skill-card-arts-up.png",
+  effects: [
+    { text: "味方全体のArtsカード性能をアップ", valueMode: "fixed", values: ["10"] },
+    { prefix: "＆", text: "宝具威力をアップ", valueMode: "fixed", values: ["10"] }
+  ]
+};
+
+const contentResult = core.calculate(sample({
+  servantNo: "001", trueName: "アルトリア", classKey: "剣", rarity: 5,
+  npType: "busterAll", contentSettings
+}));
+const contentGenerated = core.replaceSource("", contentResult);
+assert.deepEqual(contentGenerated.missing, []);
+assert.match(contentGenerated.text, /【対魔力 A】/);
+assert.match(contentGenerated.text, /【独自能力 EX】/);
+assert.match(contentGenerated.text, /&ref\(騎乗\.png,icon\/skill,height=48\)/);
+assert.match(contentGenerated.text, /\|~\|特殊な効果\|50\|/);
+assert.match(contentGenerated.text, /\*\*\*Skill1：麗しの剣 A/);
+assert.match(contentGenerated.text, /#region\(close,第二再臨以降\)\n\*\*\*Skill1：麗しの剣 A\+/);
+assert.match(contentGenerated.text, /#region\(close,第三再臨以降\)[\s\S]*&ref\(skill-damage-up\.png,icon\/skill,height=48\)/);
+assert.match(contentGenerated.text, /\*\*\*Skill1\[強化後\]：麗しの剣 EX/);
+assert.match(contentGenerated.text, /\|~\|7\|＆宝具威力をアップ\|>\|>\|>\|>\|>\|>\|>\|>\|>\|30\|/);
+assert.match(contentGenerated.text, /~エクスカリバー&br\(\)約束された勝利の剣/);
+assert.match(contentGenerated.text, /\|BGCOLOR\(#F88\):Buster\|A\+\+\|対城宝具\|敵全体に強力な攻撃\[Lv\]\|300\|400\|450\|475\|500\|/);
+assert.match(contentGenerated.text, /#region\(close,第三再臨以降\)[\s\S]*~エクスカリバー・モルガン&br\(\)約束された勝利の剣・黒/);
+assert.match(contentGenerated.text, /約束された勝利の剣〔強化後〕/);
+assert.match(contentGenerated.text, /BGCOLOR\(#17184b\):COLOR\(white\):遠き理想郷/);
+assert.match(contentGenerated.text, /&font\(,b,#00cc58\)\{アルトリア\}装備時のみ、&br\(\)自身がフィールドにいる間、味方全体のArtsカード性能をアップ\|10\|/);
+assert.equal(core.replaceSource(contentGenerated.text, contentResult).text, contentGenerated.text, "生成コードへ再反映しても重複しない");
 
 console.log("All tests passed.");
