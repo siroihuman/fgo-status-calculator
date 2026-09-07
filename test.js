@@ -7,6 +7,9 @@ globalThis.__FGO_STATUS_CALC_TEST__ = true;
 require("./FGO_StatusCalculator_atwiki.js");
 
 const core = globalThis.FGOStatusCalculatorCore;
+const calculatorSource = fs.readFileSync("FGO_StatusCalculator_atwiki.js", "utf8");
+assert.match(calculatorSource, /\{ label: "基本", traits: \["ギリシャ神話系男性"\] \}/);
+assert.doesNotMatch(calculatorSource, /label: "追加属性"/);
 
 function sample(overrides) {
   return Object.assign({
@@ -46,6 +49,7 @@ function sample(overrides) {
 
 const templateFile = fs.readFileSync("servant_template.txt", "utf8").trim();
 assert.equal(core.SERVANT_TEMPLATE, templateFile, "埋め込みテンプレートが添付テンプレートと一致する");
+assert.doesNotMatch(templateFile, /#include_cache\(〔〕特性\)/, "更新版テンプレートへ置換されている");
 
 const generated = core.replaceSource("", core.calculate(sample()));
 assert.equal(generated.generatedTemplate, true);
@@ -65,22 +69,27 @@ assert.match(generated.text, /\/\/─┤絆礼装├/);
 const oldSource = templateFile
   .replace(/【ページ名】/g, "旧名")
   .replace("サーヴァント / 人型 /  /  /  /  /  /", "サーヴァント / 人型 / 新選組のサーヴァント / 独自特性 /  / ");
-assert.deepEqual(core.parseSelectedTraitsFromSource(oldSource), ["サーヴァント", "人型", "新選組"]);
+assert.deepEqual(core.parseSelectedTraitsFromSource(oldSource), ["新選組"]);
 const updated = core.replaceSource(oldSource, core.calculate(sample({ trueName: "新名", selectedTraits: ["サーヴァント", "人型", "新選組"] })));
 assert.equal(updated.generatedTemplate, false);
 assert.match(updated.text, /page=新名\/ボイス,text=編集/);
 assert.match(updated.text, /サーヴァント \/ 人型 \/ 女性 \/ 混沌 \/ 悪 \/ 地の力 \/ バーサーカー \/ 新選組 \/ 独自特性/);
 assert.doesNotMatch(updated.text, /新選組のサーヴァント/);
 
-const omitted = core.replaceSource("", core.calculate(sample({
+const specialTraits = core.replaceSource("", core.calculate(sample({
   classKey: "降",
   affinity: "星",
   personality: "夏",
   gender: "-",
-  selectedTraits: ["サーヴァント", "人型", "夏", "星の力", "バニー系", "ワルキューレ"]
+  selectedTraits: ["夏", "星の力", "バニー系", "ワルキューレ"]
 })));
-const omittedTraitLine = omitted.text.match(/^\|特性\|.*$/m)[0];
-assert.match(omittedTraitLine, /サーヴァント \/ 人型 \/ 性別不明 \/ 混沌 \/ 夏 \/ 星の力 \/ ワルキューレ \/ バニー系/);
-assert.doesNotMatch(omittedTraitLine, /フォーリナー/);
+const specialTraitLine = specialTraits.text.match(/^\|特性\|.*$/m)[0];
+assert.match(specialTraitLine, /サーヴァント \/ 人型 \/ 性別不明 \/ 混沌 \/ 夏 \/ 星の力 \/ ワルキューレ \/ バニー系/);
+assert.doesNotMatch(specialTraitLine, /フォーリナー/);
+
+for (const personality of ["狂", "星", "夏", "花嫁"]) {
+  const traitLine = core.replaceSource("", core.calculate(sample({ personality }))).text.match(/^\|特性\|.*$/m)[0];
+  assert.ok(traitLine.includes(` / ${personality} / `), `性格「${personality}」を特性欄へ追加する`);
+}
 
 console.log("All tests passed.");

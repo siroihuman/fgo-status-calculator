@@ -104,11 +104,6 @@
 //|BGCOLOR(#F88):Buster||対宝具|||||||
 //|~|~|~|||||||
 
-//#divclass(ledit){
-//[&link_edit(page=〔〕特性,text=編集)]
-//}
-//#include_cache(〔〕特性)
-
 ////B宝具倍率（単・全）
 //敵単体に超強力な攻撃[Lv] &font(85%,#fff,#e44,b){　Buster(x1.5)　}|600|800|900|950|1000|
 //敵単体に超強力な攻撃[Lv] &font(85%,#fff,#e44,b){　Buster(x1.5)　}|800|1000|1100|1150|1200|
@@ -154,10 +149,6 @@
 //|~|~|＆[Lv]   |||||||||||
 //|~|~|＆   |>|>|>|>|>|>|>|>|>||
 
-//#divclass(ledit){
-//[&link_edit(page=〔〕特性,text=編集)]
-//}
-//#include_cache(〔〕特性)
 ***Skill2：
 |BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:25|BGCOLOR(#f5fffa):LEFT:281|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|c
 |BGCOLOR(#e6e6fa):CENTER:&ref(0.png,icon/skill,height=48)|BGCOLOR(#e6e6fa):CENTER:CT|BGCOLOR(#e6e6fa):CENTER:効果|BGCOLOR(#e6e6fa):CENTER:Lv.1|BGCOLOR(#e6e6fa):CENTER:Lv.2|BGCOLOR(#e6e6fa):CENTER:Lv.3|BGCOLOR(#e6e6fa):CENTER:Lv.4|BGCOLOR(#e6e6fa):CENTER:Lv.5|BGCOLOR(#e6e6fa):CENTER:Lv.6|BGCOLOR(#e6e6fa):CENTER:Lv.7|BGCOLOR(#e6e6fa):CENTER:Lv.8|BGCOLOR(#e6e6fa):CENTER:Lv.9|BGCOLOR(#e6e6fa):CENTER:Lv.10|
@@ -177,10 +168,6 @@
 //|~|~|＆[Lv]   |||||||||||
 //|~|~|＆   |>|>|>|>|>|>|>|>|>||
 
-//#divclass(ledit){
-//[&link_edit(page=〔〕特性,text=編集)]
-//}
-//#include_cache(〔〕特性)
 ***Skill3：
 |BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:25|BGCOLOR(#f5fffa):LEFT:281|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|c
 |BGCOLOR(#e6e6fa):CENTER:&ref(0.png,icon/skill,height=48)|BGCOLOR(#e6e6fa):CENTER:CT|BGCOLOR(#e6e6fa):CENTER:効果|BGCOLOR(#e6e6fa):CENTER:Lv.1|BGCOLOR(#e6e6fa):CENTER:Lv.2|BGCOLOR(#e6e6fa):CENTER:Lv.3|BGCOLOR(#e6e6fa):CENTER:Lv.4|BGCOLOR(#e6e6fa):CENTER:Lv.5|BGCOLOR(#e6e6fa):CENTER:Lv.6|BGCOLOR(#e6e6fa):CENTER:Lv.7|BGCOLOR(#e6e6fa):CENTER:Lv.8|BGCOLOR(#e6e6fa):CENTER:Lv.9|BGCOLOR(#e6e6fa):CENTER:Lv.10|
@@ -200,27 +187,6 @@
 //|~|~|＆[Lv]   |||||||||||
 //|~|~|＆   |>|>|>|>|>|>|>|>|>||
 
-//#divclass(ledit){
-//[&link_edit(page=〔〕特性,text=編集)]
-//}
-//#include_cache(〔〕特性)
-//***Skill：
-//|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:25|BGCOLOR(#f5fffa):LEFT:281|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|c
-//|BGCOLOR(#e6e6fa):CENTER:&ref(0.png,icon/skill,height=48)|BGCOLOR(#e6e6fa):CENTER:CT|BGCOLOR(#e6e6fa):CENTER:効果|BGCOLOR(#e6e6fa):CENTER:Lv.1|BGCOLOR(#e6e6fa):CENTER:Lv.2|BGCOLOR(#e6e6fa):CENTER:Lv.3|BGCOLOR(#e6e6fa):CENTER:Lv.4|BGCOLOR(#e6e6fa):CENTER:Lv.5|BGCOLOR(#e6e6fa):CENTER:Lv.6|BGCOLOR(#e6e6fa):CENTER:Lv.7|BGCOLOR(#e6e6fa):CENTER:Lv.8|BGCOLOR(#e6e6fa):CENTER:Lv.9|BGCOLOR(#e6e6fa):CENTER:Lv.10|
-//|~||[Lv]     |||||||||||
-//|~|~|＆[Lv]   |||||||||||
-//|~|~|＆[Lv]   |||||||||||
-//|~|~|＆[Lv]   |||||||||||
-//|~|~|＆[Lv]   |||||||||||
-//|~|~|＆   |>|>|>|>|>|>|>|>|>||
-//|~|~|＆   |>|>|>|>|>|>|>|>|>||
-//|~|~|＆   |>|>|>|>|>|>|>|>|>||
-//|~|~|＆   |>|>|>|>|>|>|>|>|>||
-
-//#divclass(ledit){
-//[&link_edit(page=〔〕特性,text=編集)]
-//}
-//#include_cache(〔〕特性)
 
 //─┤クラススキル├─────────────────────────
 
@@ -229,37 +195,17 @@
 |&ref(0.png,icon/skill,height=48)|>|BGCOLOR(#e6e6fa):CENTER:&font(b,110%){【スキル名】}&ref(.png,icon/class,title=セイバー,height=25,width=25)|
 |~|||
 
-//#divclass(ledit){
-//[&link_edit(page=〔〕特性,text=編集)]
-//}
-//#include_cache(〔〕特性)
-
 |BGCOLOR(#e6e6fa):CENTER:45|BGCOLOR(#f5fffa):LEFT:359|BGCOLOR(#f5fffa):CENTER:45|c
 |&ref(0.png,icon/skill,height=48)|>|BGCOLOR(#e6e6fa):CENTER:&font(b,110%){【スキル名】}&ref(.png,icon/class,title=セイバー,height=25,width=25)|
 |~|||
 
-//#divclass(ledit){
-//[&link_edit(page=〔〕特性,text=編集)]
-//}
-//#include_cache(〔〕特性)
-
 //|BGCOLOR(#e6e6fa):CENTER:45|BGCOLOR(#f5fffa):LEFT:359|BGCOLOR(#f5fffa):CENTER:45|c
 //|&ref(0.png,icon/skill,height=48)|>|BGCOLOR(#e6e6fa):CENTER:&font(b,110%){【スキル名】}&ref(.png,icon/class,title=セイバー,height=25,width=25)|
 //|~|||
 
-//#divclass(ledit){
-//[&link_edit(page=〔〕特性,text=編集)]
-//}
-//#include_cache(〔〕特性)
-
 //|BGCOLOR(#e6e6fa):CENTER:45|BGCOLOR(#f5fffa):LEFT:359|BGCOLOR(#f5fffa):CENTER:45|c
 //|&ref(0.png,icon/skill,height=48)|>|BGCOLOR(#e6e6fa):CENTER:&font(b,110%){【スキル名】}&ref(.png,icon/class,title=セイバー,height=25,width=25)|
 //|~|||
-
-//#divclass(ledit){
-//[&link_edit(page=〔〕特性,text=編集)]
-//}
-//#include_cache(〔〕特性)
 
 
 
@@ -277,11 +223,6 @@
 |~|>|||
 |~|>|||
 |~|>|||
-
-//#divclass(ledit){
-//[&link_edit(page=〔〕特性,text=編集)]
-//}
-//#include_cache(〔〕特性)
 #endregion()
 
 
