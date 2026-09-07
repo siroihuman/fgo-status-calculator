@@ -1,0 +1,313 @@
+*No.
+#divclass(fgowiki-clearfix){{{
+#divclass(srv_menu){
+#contents(fromhere=true)}
+#divclass(gallery){{
+}}
+}}}
+
+//─┤ステータス├──────────────────────────
+
+*ステータス
+**基本情報
+|BGCOLOR(#98fb98):CENTER:46|BGCOLOR(#87ceeb):CENTER:46|BGCOLOR(#ffb6c1):CENTER:46|BGCOLOR(#e6e6fa):CENTER:58|BGCOLOR(#f5fffa):CENTER:50|BGCOLOR(#f5fffa):CENTER:50|BGCOLOR(#e6e6fa):CENTER:20|BGCOLOR(#f5fffa):CENTER:50|BGCOLOR(#f5fffa):CENTER:50|BGCOLOR(#f5fffa):CENTER:50|BGCOLOR(#f5fffa):CENTER:50|BGCOLOR(#e6e6fa):CENTER:20|BGCOLOR(#f5fffa):CENTER:50|BGCOLOR(#f5fffa):CENTER:50|BGCOLOR(#f5fffa):CENTER:50|BGCOLOR(#f5fffa):CENTER:50|BGCOLOR(#f5fffa):CENTER:50|c
+|>|>|>|>|>|>|>|>|>|>|>|>|>|>|>|>|BGCOLOR(#17184b):COLOR(white):No.|
+|>|>|BGCOLOR(#e6e6fa):真名|>|>|>|>|>|>|>|>|>|>|>|>|>|[[>/データ]]|
+|>|>|BGCOLOR(#e6e6fa):Class|>|>|&ref(剣金.png,icon/class,width=30)|>|BGCOLOR(#e6e6fa):Rare|5|BGCOLOR(#e6e6fa):Cost|16|>|BGCOLOR(#e6e6fa):傾向|>||BGCOLOR(#e6e6fa):タイプ||
+|>|>|BGCOLOR(#e6e6fa):コマンドカード|能力値|BGCOLOR(#e6e6fa):Lv. 1|BGCOLOR(#e6e6fa):Lv.50|霊基再臨|BGCOLOR(#e6e6fa):Lv.60|BGCOLOR(#e6e6fa):Lv.70|BGCOLOR(#e6e6fa):Lv.80|BGCOLOR(#e6e6fa):Lv.90|聖杯転臨|BGCOLOR(#e6e6fa):Lv.100|BGCOLOR(#e6e6fa):Lv.120|BGCOLOR(#e6e6fa):|BGCOLOR(#e6e6fa):|BGCOLOR(#e6e6fa):|
+|Quick|Arts|Buster|HP|||~|||||~||||||
+||||ATK|||~|||||~||||||
+//#region(close,真名)
+//
+//#endregion()
+//#region(のクラス相性)
+//|>|BGCOLOR(#CCFFCC):CENTER:のクラス相性|
+//|BGCOLOR(#CCFFCC):CENTER:有利|&ref(槍銀.png,icon/class,height=48,width=48)|
+//|~|〔〕 / |
+//|BGCOLOR(#CCFFCC):CENTER:不利|&ref(弓銀.png,icon/class,height=48,width=48)|
+//|~|〔〕 / |
+//|BGCOLOR(#CCFFCC):CENTER:等倍|&ref(全銀.png,icon/class,height=48,width=48)|
+//|~|〔〕 / |
+//#endregion
+
+
+
+//─┤隠しステータス├────────────────────────
+
+***隠しステータス　&nobold{サーヴァント属性＆特性・バトル補正値}
+#openclose(margin:0;,padding:0;,border:none;,show=▼表示/非表示,){{{
+|BGCOLOR(#e6e6fa):CENTER:95|BGCOLOR(#f5fffa):CENTER:70|BGCOLOR(#f5fffa):CENTER:70|BGCOLOR(#f5fffa):CENTER:70|BGCOLOR(#f5fffa):CENTER:70|BGCOLOR(#f5fffa):CENTER:70|BGCOLOR(#e6e6fa):CENTER:95|BGCOLOR(#f5fffa):CENTER:70|c
+|>|>|>|>|>|>|>|BGCOLOR(#17184b):COLOR(white):隠しステータス|
+|BGCOLOR(#e6e6fa):相性||BGCOLOR(#e6e6fa):属性|BGCOLOR(#e6e6fa):方針|BGCOLOR(#e6e6fa):性格|BGCOLOR(#e6e6fa):性別|宝具|BGCOLOR(#F88):単体Ｂ|
+|BGCOLOR(#e6e6fa):成長||~||||スター発生率|00.0|
+|ヒット数|BGCOLOR(#98fb98):Q|BGCOLOR(#87ceeb):A|BGCOLOR(#ffb6c1):B|BGCOLOR(#c0c0c0):EX|BGCOLOR(#f9e38d):宝具|スター集中度|0|
+|~||||||DR&footnote(即死攻撃を受けた時の補正値。数値が低いほど死に難い。)|0.0|
+|N/A&footnote(攻撃時のNP上昇基礎値)|>|>|>|>|0.00|N/D&footnote(攻撃を受けた際のNP上昇基礎値)|.00|
+|特性|>|>|>|>|>|>|LEFT:サーヴァント / 人型 /  /  /  /  /  / |
+}}}
+
+// N/A補正値
+//Arts全体補正幅(減少傾向)：＋0.15 ～ －0.35
+//Arts単体補正幅(増加傾向)：＋0.20 ～ －0.28
+//Quick全体補正幅(減少傾向)：＋0.20 ～ －0.74
+//Quick単体補正幅(据置傾向)：＋0.10 ～ －0.04
+
+// 複数宝具用（※不要時は削除可）
+//|BGCOLOR(#f9e38d):/|
+
+
+//─┤宝具├─────────────────────────────
+
+**宝具
+////真名隠し状態の宝具が作中にある場合はコメントアウトを外す
+////#divclass(truenameNoble){{{
+//|BGCOLOR(#e6e6fa):CENTER:45|BGCOLOR(#e6e6fa):CENTER:45|BGCOLOR(#e6e6fa):CENTER:65|BGCOLOR(#e6e6fa):CENTER:429|>|>|>|>|BGCOLOR(#e6e6fa):CENTER:40|c
+//|>|>|>|~&br()？？？|>|>|>|>| |
+//|Card|ランク|種別|効果|1|2|3|4|5|
+//|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:65|BGCOLOR(#f5fffa):LEFT:429|>|>|>|>|BGCOLOR(#f5fffa):RIGHT:40|c
+//|BGCOLOR(#F88):Buster|？|？？？|[Lv]&font(85%,#fff,#e44,b){　Buster(x1.5)　}||||||
+//|~|~|~|＆<OC:効果UP>||||||
+//#region(close,真名判明後)
+//***真名判明後&nobold(){}
+
+|BGCOLOR(#e6e6fa):CENTER:45|BGCOLOR(#e6e6fa):CENTER:45|BGCOLOR(#e6e6fa):CENTER:65|BGCOLOR(#e6e6fa):CENTER:429|>|>|>|>|BGCOLOR(#e6e6fa):CENTER:40|c
+|>|>|>|~&br()|>|>|>|>| |
+|Card|ランク|種別|効果|1|2|3|4|5|
+|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:65|BGCOLOR(#f5fffa):LEFT:429|>|>|>|>|BGCOLOR(#f5fffa):RIGHT:40|c
+|BGCOLOR(#F88):Buster||対宝具|||||||
+|~|~|~|||||||
+|~|~|~|||||||
+|~|~|~|||||||
+|~|~|~|||||||
+|~|~|~||>|>|>|>||
+|~|~|~||>|>|>|>||
+|~|~|~||>|>|>|>||
+|~|~|~||>|>|>|>||
+//#endregion
+//強化後
+//#br
+////真名隠し状態の宝具が作中にある場合はコメントアウトを外す
+////#divclass(truenameNoble){{{
+//|BGCOLOR(#e6e6fa):CENTER:45|BGCOLOR(#e6e6fa):CENTER:45|BGCOLOR(#e6e6fa):CENTER:65|BGCOLOR(#e6e6fa):CENTER:429|>|>|>|>|BGCOLOR(#e6e6fa):CENTER:40|c
+//|>|>|>|~&br()？？？|>|>|>|>| |
+//|Card|ランク|種別|効果|1|2|3|4|5|
+//|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:65|BGCOLOR(#f5fffa):LEFT:429|>|>|>|>|BGCOLOR(#f5fffa):RIGHT:40|c
+//|BGCOLOR(#F88):Buster|？|？？？|[Lv]&font(85%,#fff,#e44,b){　Buster(x1.5)　}||||||
+//|~|~|~|＆<OC:効果UP>||||||
+//#region(close,真名判明後)
+//***真名判明後&nobold(){}
+
+//|BGCOLOR(#e6e6fa):CENTER:45|BGCOLOR(#e6e6fa):CENTER:45|BGCOLOR(#e6e6fa):CENTER:65|BGCOLOR(#e6e6fa):CENTER:429|>|>|>|>|BGCOLOR(#e6e6fa):CENTER:40|c
+//|>|>|>|~&br()|>|>|>|>| |
+//|Card|ランク|種別|効果|1|2|3|4|5|
+//|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:65|BGCOLOR(#f5fffa):LEFT:429|>|>|>|>|BGCOLOR(#f5fffa):RIGHT:40|c
+//|BGCOLOR(#F88):Buster||対宝具|||||||
+//|~|~|~|||||||
+
+//#divclass(ledit){
+//[&link_edit(page=〔〕特性,text=編集)]
+//}
+//#include_cache(〔〕特性)
+
+////B宝具倍率（単・全）
+//敵単体に超強力な攻撃[Lv] &font(85%,#fff,#e44,b){　Buster(x1.5)　}|600|800|900|950|1000|
+//敵単体に超強力な攻撃[Lv] &font(85%,#fff,#e44,b){　Buster(x1.5)　}|800|1000|1100|1150|1200|
+//敵全体に強力な攻撃[Lv] &font(85%,#fff,#e44,b){　Buster(x1.5)　}|300|400|450|475|500|
+//敵全体に強力な攻撃[Lv] &font(85%,#fff,#e44,b){　Buster(x1.5)　}|400|500|550|575|600|
+
+////A宝具倍率（単・全）
+//敵単体に超強力な攻撃[Lv] &font(85%,#fff,#44e,b){　Arts(x1.0)　}|900|1200|1350|1425|1500|
+//敵単体に超強力な攻撃[Lv] &font(85%,#fff,#44e,b){　Arts(x1.0)　}|1200|1500|1650|1725|1800|
+//敵全体に強力な攻撃[Lv] &font(85%,#fff,#44e,b){　Arts(x1.0)　}|450|600|675|712.5|750|
+//敵全体に強力な攻撃[Lv] &font(85%,#fff,#44e,b){　Arts(x1.0)　}|600|750|825|862.5|900|
+
+////Q宝具倍率（単・全）
+//敵単体に超強力な攻撃[Lv] &font(85%,#fff,#4e4,b){　Quick(x0.8)　}|1200|1600|1800|1900|2000|
+//敵単体に超強力な攻撃[Lv] &font(85%,#fff,#4e4,b){　Quick(x0.8)　}|1600|2000|2200|2300|2400|
+//敵全体に強力な攻撃[Lv] &font(85%,#fff,#4e4,b){　Quick(x0.8)　}|600|800|900|950|1000|
+//敵全体に強力な攻撃[Lv] &font(85%,#fff,#4e4,b){　Quick(x0.8)　}|800|1000|1100|1150|1200|
+
+////真名隠し状態の宝具が作中にある場合はコメントアウトを外す
+//#endregion
+//#endregion
+//}}}
+
+//─┤保有スキル├──────────────────────────
+
+**保有スキル
+***Skill1：
+|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:25|BGCOLOR(#f5fffa):LEFT:281|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|c
+|BGCOLOR(#e6e6fa):CENTER:&ref(0.png,icon/skill,height=48)|BGCOLOR(#e6e6fa):CENTER:CT|BGCOLOR(#e6e6fa):CENTER:効果|BGCOLOR(#e6e6fa):CENTER:Lv.1|BGCOLOR(#e6e6fa):CENTER:Lv.2|BGCOLOR(#e6e6fa):CENTER:Lv.3|BGCOLOR(#e6e6fa):CENTER:Lv.4|BGCOLOR(#e6e6fa):CENTER:Lv.5|BGCOLOR(#e6e6fa):CENTER:Lv.6|BGCOLOR(#e6e6fa):CENTER:Lv.7|BGCOLOR(#e6e6fa):CENTER:Lv.8|BGCOLOR(#e6e6fa):CENTER:Lv.9|BGCOLOR(#e6e6fa):CENTER:Lv.10|
+|~||[Lv]     |||||||||||
+|~|~|＆[Lv]   |||||||||||
+|~|~|＆[Lv]   |||||||||||
+|~|~|＆[Lv]   |||||||||||
+|~|~|＆[Lv]   |||||||||||
+|~|~|＆   |>|>|>|>|>|>|>|>|>||
+|~|~|＆   |>|>|>|>|>|>|>|>|>||
+|~|~|＆   |>|>|>|>|>|>|>|>|>||
+|~|~|＆   |>|>|>|>|>|>|>|>|>||
+//***Skill1[強化後]：
+//|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:25|BGCOLOR(#f5fffa):LEFT:281|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|c
+//|BGCOLOR(#e6e6fa):CENTER:&ref(0.png,icon/skill,height=48)|BGCOLOR(#e6e6fa):CENTER:CT|BGCOLOR(#e6e6fa):CENTER:効果|BGCOLOR(#e6e6fa):CENTER:Lv.1|BGCOLOR(#e6e6fa):CENTER:Lv.2|BGCOLOR(#e6e6fa):CENTER:Lv.3|BGCOLOR(#e6e6fa):CENTER:Lv.4|BGCOLOR(#e6e6fa):CENTER:Lv.5|BGCOLOR(#e6e6fa):CENTER:Lv.6|BGCOLOR(#e6e6fa):CENTER:Lv.7|BGCOLOR(#e6e6fa):CENTER:Lv.8|BGCOLOR(#e6e6fa):CENTER:Lv.9|BGCOLOR(#e6e6fa):CENTER:Lv.10|
+//|~||[Lv]     |||||||||||
+//|~|~|＆[Lv]   |||||||||||
+//|~|~|＆   |>|>|>|>|>|>|>|>|>||
+
+//#divclass(ledit){
+//[&link_edit(page=〔〕特性,text=編集)]
+//}
+//#include_cache(〔〕特性)
+***Skill2：
+|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:25|BGCOLOR(#f5fffa):LEFT:281|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|c
+|BGCOLOR(#e6e6fa):CENTER:&ref(0.png,icon/skill,height=48)|BGCOLOR(#e6e6fa):CENTER:CT|BGCOLOR(#e6e6fa):CENTER:効果|BGCOLOR(#e6e6fa):CENTER:Lv.1|BGCOLOR(#e6e6fa):CENTER:Lv.2|BGCOLOR(#e6e6fa):CENTER:Lv.3|BGCOLOR(#e6e6fa):CENTER:Lv.4|BGCOLOR(#e6e6fa):CENTER:Lv.5|BGCOLOR(#e6e6fa):CENTER:Lv.6|BGCOLOR(#e6e6fa):CENTER:Lv.7|BGCOLOR(#e6e6fa):CENTER:Lv.8|BGCOLOR(#e6e6fa):CENTER:Lv.9|BGCOLOR(#e6e6fa):CENTER:Lv.10|
+|~||[Lv]     |||||||||||
+|~|~|＆[Lv]   |||||||||||
+|~|~|＆[Lv]   |||||||||||
+|~|~|＆[Lv]   |||||||||||
+|~|~|＆[Lv]   |||||||||||
+|~|~|＆   |>|>|>|>|>|>|>|>|>||
+|~|~|＆   |>|>|>|>|>|>|>|>|>||
+|~|~|＆   |>|>|>|>|>|>|>|>|>||
+|~|~|＆   |>|>|>|>|>|>|>|>|>||
+//***Skill2[強化後]：
+//|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:25|BGCOLOR(#f5fffa):LEFT:281|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|c
+//|BGCOLOR(#e6e6fa):CENTER:&ref(0.png,icon/skill,height=48)|BGCOLOR(#e6e6fa):CENTER:CT|BGCOLOR(#e6e6fa):CENTER:効果|BGCOLOR(#e6e6fa):CENTER:Lv.1|BGCOLOR(#e6e6fa):CENTER:Lv.2|BGCOLOR(#e6e6fa):CENTER:Lv.3|BGCOLOR(#e6e6fa):CENTER:Lv.4|BGCOLOR(#e6e6fa):CENTER:Lv.5|BGCOLOR(#e6e6fa):CENTER:Lv.6|BGCOLOR(#e6e6fa):CENTER:Lv.7|BGCOLOR(#e6e6fa):CENTER:Lv.8|BGCOLOR(#e6e6fa):CENTER:Lv.9|BGCOLOR(#e6e6fa):CENTER:Lv.10|
+//|~||[Lv]     |||||||||||
+//|~|~|＆[Lv]   |||||||||||
+//|~|~|＆   |>|>|>|>|>|>|>|>|>||
+
+//#divclass(ledit){
+//[&link_edit(page=〔〕特性,text=編集)]
+//}
+//#include_cache(〔〕特性)
+***Skill3：
+|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:25|BGCOLOR(#f5fffa):LEFT:281|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|c
+|BGCOLOR(#e6e6fa):CENTER:&ref(0.png,icon/skill,height=48)|BGCOLOR(#e6e6fa):CENTER:CT|BGCOLOR(#e6e6fa):CENTER:効果|BGCOLOR(#e6e6fa):CENTER:Lv.1|BGCOLOR(#e6e6fa):CENTER:Lv.2|BGCOLOR(#e6e6fa):CENTER:Lv.3|BGCOLOR(#e6e6fa):CENTER:Lv.4|BGCOLOR(#e6e6fa):CENTER:Lv.5|BGCOLOR(#e6e6fa):CENTER:Lv.6|BGCOLOR(#e6e6fa):CENTER:Lv.7|BGCOLOR(#e6e6fa):CENTER:Lv.8|BGCOLOR(#e6e6fa):CENTER:Lv.9|BGCOLOR(#e6e6fa):CENTER:Lv.10|
+|~||[Lv]     |||||||||||
+|~|~|＆[Lv]   |||||||||||
+|~|~|＆[Lv]   |||||||||||
+|~|~|＆[Lv]   |||||||||||
+|~|~|＆[Lv]   |||||||||||
+|~|~|＆   |>|>|>|>|>|>|>|>|>||
+|~|~|＆   |>|>|>|>|>|>|>|>|>||
+|~|~|＆   |>|>|>|>|>|>|>|>|>||
+|~|~|＆   |>|>|>|>|>|>|>|>|>||
+//***Skill3[強化後]：
+//|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:25|BGCOLOR(#f5fffa):LEFT:281|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|c
+//|BGCOLOR(#e6e6fa):CENTER:&ref(0.png,icon/skill,height=48)|BGCOLOR(#e6e6fa):CENTER:CT|BGCOLOR(#e6e6fa):CENTER:効果|BGCOLOR(#e6e6fa):CENTER:Lv.1|BGCOLOR(#e6e6fa):CENTER:Lv.2|BGCOLOR(#e6e6fa):CENTER:Lv.3|BGCOLOR(#e6e6fa):CENTER:Lv.4|BGCOLOR(#e6e6fa):CENTER:Lv.5|BGCOLOR(#e6e6fa):CENTER:Lv.6|BGCOLOR(#e6e6fa):CENTER:Lv.7|BGCOLOR(#e6e6fa):CENTER:Lv.8|BGCOLOR(#e6e6fa):CENTER:Lv.9|BGCOLOR(#e6e6fa):CENTER:Lv.10|
+//|~||[Lv]     |||||||||||
+//|~|~|＆[Lv]   |||||||||||
+//|~|~|＆   |>|>|>|>|>|>|>|>|>||
+
+//#divclass(ledit){
+//[&link_edit(page=〔〕特性,text=編集)]
+//}
+//#include_cache(〔〕特性)
+//***Skill：
+//|BGCOLOR(#f5fffa):CENTER:45|BGCOLOR(#f5fffa):CENTER:25|BGCOLOR(#f5fffa):LEFT:281|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|BGCOLOR(#f5fffa):RIGHT:40|c
+//|BGCOLOR(#e6e6fa):CENTER:&ref(0.png,icon/skill,height=48)|BGCOLOR(#e6e6fa):CENTER:CT|BGCOLOR(#e6e6fa):CENTER:効果|BGCOLOR(#e6e6fa):CENTER:Lv.1|BGCOLOR(#e6e6fa):CENTER:Lv.2|BGCOLOR(#e6e6fa):CENTER:Lv.3|BGCOLOR(#e6e6fa):CENTER:Lv.4|BGCOLOR(#e6e6fa):CENTER:Lv.5|BGCOLOR(#e6e6fa):CENTER:Lv.6|BGCOLOR(#e6e6fa):CENTER:Lv.7|BGCOLOR(#e6e6fa):CENTER:Lv.8|BGCOLOR(#e6e6fa):CENTER:Lv.9|BGCOLOR(#e6e6fa):CENTER:Lv.10|
+//|~||[Lv]     |||||||||||
+//|~|~|＆[Lv]   |||||||||||
+//|~|~|＆[Lv]   |||||||||||
+//|~|~|＆[Lv]   |||||||||||
+//|~|~|＆[Lv]   |||||||||||
+//|~|~|＆   |>|>|>|>|>|>|>|>|>||
+//|~|~|＆   |>|>|>|>|>|>|>|>|>||
+//|~|~|＆   |>|>|>|>|>|>|>|>|>||
+//|~|~|＆   |>|>|>|>|>|>|>|>|>||
+
+//#divclass(ledit){
+//[&link_edit(page=〔〕特性,text=編集)]
+//}
+//#include_cache(〔〕特性)
+
+//─┤クラススキル├─────────────────────────
+
+**クラススキル
+|BGCOLOR(#e6e6fa):CENTER:45|BGCOLOR(#f5fffa):LEFT:359|BGCOLOR(#f5fffa):CENTER:45|c
+|&ref(0.png,icon/skill,height=48)|>|BGCOLOR(#e6e6fa):CENTER:&font(b,110%){【スキル名】}&ref(.png,icon/class,title=セイバー,height=25,width=25)|
+|~|||
+
+//#divclass(ledit){
+//[&link_edit(page=〔〕特性,text=編集)]
+//}
+//#include_cache(〔〕特性)
+
+|BGCOLOR(#e6e6fa):CENTER:45|BGCOLOR(#f5fffa):LEFT:359|BGCOLOR(#f5fffa):CENTER:45|c
+|&ref(0.png,icon/skill,height=48)|>|BGCOLOR(#e6e6fa):CENTER:&font(b,110%){【スキル名】}&ref(.png,icon/class,title=セイバー,height=25,width=25)|
+|~|||
+
+//#divclass(ledit){
+//[&link_edit(page=〔〕特性,text=編集)]
+//}
+//#include_cache(〔〕特性)
+
+//|BGCOLOR(#e6e6fa):CENTER:45|BGCOLOR(#f5fffa):LEFT:359|BGCOLOR(#f5fffa):CENTER:45|c
+//|&ref(0.png,icon/skill,height=48)|>|BGCOLOR(#e6e6fa):CENTER:&font(b,110%){【スキル名】}&ref(.png,icon/class,title=セイバー,height=25,width=25)|
+//|~|||
+
+//#divclass(ledit){
+//[&link_edit(page=〔〕特性,text=編集)]
+//}
+//#include_cache(〔〕特性)
+
+//|BGCOLOR(#e6e6fa):CENTER:45|BGCOLOR(#f5fffa):LEFT:359|BGCOLOR(#f5fffa):CENTER:45|c
+//|&ref(0.png,icon/skill,height=48)|>|BGCOLOR(#e6e6fa):CENTER:&font(b,110%){【スキル名】}&ref(.png,icon/class,title=セイバー,height=25,width=25)|
+//|~|||
+
+//#divclass(ledit){
+//[&link_edit(page=〔〕特性,text=編集)]
+//}
+//#include_cache(〔〕特性)
+
+
+
+//─┤絆礼装├─────────────────────────
+
+*絆礼装
+#region()
+|BGCOLOR(#e6e6fa):CENTER:48|BGCOLOR(#f5fffa):CENTER:320|BGCOLOR(#f5fffa):LEFT:48|BGCOLOR(#fff8dc):CENTER:120|c
+|>|>|>|BGCOLOR(#17184b):COLOR(white):　|
+|Rare|4|BGCOLOR(#e6e6fa):CENTER:LV|80|
+|Cost|9|BGCOLOR(#e6e6fa):CENTER:HP|100|
+|タイプ|絆礼装|BGCOLOR(#e6e6fa):CENTER:ATK|100|
+|>|>|>|BGCOLOR(#e6e6fa):|
+|&ref(0.png,icon/skill,width=48)|>|&font(,b,#00cc58){}装備時のみ、&br()自身がフィールドにいる間、| |
+|~|>|||
+|~|>|||
+|~|>|||
+
+//#divclass(ledit){
+//[&link_edit(page=〔〕特性,text=編集)]
+//}
+//#include_cache(〔〕特性)
+#endregion()
+
+
+
+
+//─┤プロフィール├─────────────────────────
+
+*プロフィール
+**パラメーター
+|BGCOLOR(#000):COLOR(#fff):CENTER:60|BGCOLOR(#683f36):CENTER:20|BGCOLOR(#683f36):CENTER:20|BGCOLOR(#683f36):CENTER:20|BGCOLOR(#683f36):CENTER:20|BGCOLOR(#683f36):CENTER:20|BGCOLOR(#000):COLOR(#fff):CENTER:25|BGCOLOR(#000):0|BGCOLOR(#000):COLOR(#fff):CENTER:60|BGCOLOR(#683f36):CENTER:20|BGCOLOR(#683f36):CENTER:20|BGCOLOR(#683f36):CENTER:20|BGCOLOR(#683f36):CENTER:20|BGCOLOR(#683f36):CENTER:20|BGCOLOR(#000):COLOR(#fff):CENTER:25|c
+|筋力| |耐久|
+|敏捷|~|魔力|
+|幸運|~|宝具|
+
+//─┤ボイス├────────────────────────────
+
+*ボイス
+#divclass(ledit){
+[&link_edit(page=【ページ名】/ボイス,text=編集)]
+}
+#include_cache(【ページ名】/ボイス)
+
+//─┤モーション├────────────────────────────
+
+*モーション
+#divclass(ledit){
+[&link_edit(page=【ページ名】/モーション,text=編集)]
+}
+#include_cache(【ページ名】/モーション)
