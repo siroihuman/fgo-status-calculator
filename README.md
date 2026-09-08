@@ -47,7 +47,7 @@ JSは公開GitHubリポジトリからjsDelivr経由で読み込みます。入�
 *FGO ステータス自動計算機
 
 &html(<div id="fgo-status-calculator"></div>)
-#include_js(https://cdn.jsdelivr.net/gh/siroihuman/fgo-status-calculator/v1.5.1/FGO_StatusCalculator_atwiki.js)
+#include_js(https://cdn.jsdelivr.net/gh/siroihuman/fgo-status-calculator/v1.5.2/FGO_StatusCalculator_atwiki.js)
 ```
 
 `#include_js`を使用するページは、編集権限を必ず「管理者のみ」にしてください。
@@ -157,6 +157,7 @@ node test.js
 
 ## バージョン
 
+- 1.5.2：atwikiの`include_js`検査で拒否される`#include_cache`文字列を外部JS内に直接含めない互換性修正
 - 1.5.1：atwikiの`include_js`検査に拒否される文字列を除去し、効果欄から設定項目へ移動する処理の互換性を改善
 - 1.5.0：特性ごとの再臨・霊衣限定表記、効果・再臨差分の折りたたみと移動、自由入力のターン／回数、Lv.／OC表記のOn／Offと順序整理、宝具攻撃・特攻攻撃設定を追加
 - 1.4.1：宝具種類・Hit数を宝具設定へ集約し、隠しステータスを通常行と差分行へ分離
