@@ -9,11 +9,11 @@ require("./FGO_StatusCalculator_atwiki.js");
 const core = globalThis.FGOStatusCalculatorCore;
 const calculatorSource = fs.readFileSync("FGO_StatusCalculator_atwiki.js", "utf8");
 const atwikiPageCode = fs.readFileSync("atwiki_page_code.txt", "utf8");
-assert.equal(core.VERSION, "1.5.2");
+assert.equal(core.VERSION, "1.5.3");
 assert.doesNotMatch(calculatorSource, /\bparent(?:Element)?\b/, "atwikiのinclude_js検査で拒否される文字列を含めない");
 assert.doesNotMatch(calculatorSource, /#include/, "atwikiのinclude_js検査で拒否されるinclude文字列を含めない");
 assert.doesNotMatch(atwikiPageCode, /^#include_js/m, "設置コードではinclude_jsを使用しない");
-assert.match(atwikiPageCode, /#javascript\(\)\{\{[\s\S]*<script type="text\/javascript" src="https:\/\/cdn\.jsdelivr\.net\/gh\/siroihuman\/fgo-status-calculator\/v1\.5\.2\/FGO_StatusCalculator_atwiki\.js"><\/script>[\s\S]*\}\}/);
+assert.match(atwikiPageCode, /#javascript\(\)\{\{[\s\S]*<script type="text\/javascript" src="https:\/\/cdn\.jsdelivr\.net\/gh\/siroihuman\/fgo-status-calculator\/v1\.5\.3\/FGO_StatusCalculator_atwiki\.js"><\/script>[\s\S]*\}\}/);
 assert.match(calculatorSource, /\{ label: "基本", traits: \["ギリシャ神話系男性"\] \}/);
 assert.doesNotMatch(calculatorSource, /label: "追加属性"/);
 assert.match(calculatorSource, /入力した特性：/);
@@ -62,6 +62,8 @@ assert.equal(normalizedNobleInputs.noble.base.npType, "quickAll");
 assert.equal(normalizedNobleInputs.noble.base.npHits, "9");
 assert.equal(normalizedNobleInputs.noble.variants[0].npType, "busterSingle");
 assert.equal(normalizedNobleInputs.noble.variants[0].npHits, "7");
+assert.equal(normalizedNobleInputs.bond.includeFieldCondition, true, "旧保存データではフィールド条件を従来どおり含める");
+assert.equal(core.normalizeContentSettings({ bond: { includeFieldCondition: false } }).bond.includeFieldCondition, false);
 const fixedValueNormalization = core.normalizeContentSettings({
   skills: [{ base: { effects: [{ valueMode: "fixed", values: ["10", "20", "30"] }] } }]
 });
@@ -89,6 +91,8 @@ assert.match(renderedEditors.skills, /<details class="fsc-variant-tab" id="fsc-e
 assert.match(renderedEditors.skills, /data-scroll-target="fsc-editor-skills-0-variants-0"/);
 assert.match(renderedEditors.noble, /data-scroll-target="fsc-editor-noble-variants-0"/);
 assert.doesNotMatch(renderedEditors.skills + renderedEditors.noble, /data-duration-select/);
+assert.match(renderedEditors.bond, /data-model-path="bond\.includeFieldCondition" checked/);
+assert.match(renderedEditors.bond, /「自身がフィールドにいる間、」を含める/);
 
 function sample(overrides) {
   return Object.assign({
@@ -142,6 +146,7 @@ assert.match(generated.text, /page=ヘリオガバルス\/モーション,text=�
 assert.match(generated.text, /#include_cache\(ヘリオガバルス\/モーション\)/);
 assert.doesNotMatch(generated.text, /【ページ名】/);
 assert.match(generated.text, /^\|特性\|.*サーヴァント \/ 人型 \/ 女性 \/ 混沌 \/ 悪 \/ 地の力 \/ バーサーカー \/ 神性 \/ 蛇 \/ 梁山泊 \/ 複数で一騎/m);
+assert.doesNotMatch(generated.text.match(/^\|特性\|.*$/m)[0], / \/ \|$/, "特性欄の末尾へ空の区切りを残さない");
 assert.deepEqual(core.parseTraitsFromSource(generated.text), ["サーヴァント", "人型", "女性", "混沌", "悪", "地の力", "バーサーカー", "神性", "蛇", "梁山泊", "複数で一騎"]);
 assert.match(generated.text, /\/\/─┤クラススキル├/);
 assert.match(generated.text, /\/\/─┤絆礼装├/);
@@ -156,6 +161,7 @@ assert.equal(updated.generatedTemplate, false);
 assert.match(updated.text, /page=新名\/ボイス,text=編集/);
 assert.match(updated.text, /サーヴァント \/ 人型 \/ 女性 \/ 混沌 \/ 悪 \/ 地の力 \/ バーサーカー \/ 新選組 \/ 独自特性/);
 assert.doesNotMatch(updated.text, /新選組のサーヴァント/);
+assert.doesNotMatch(updated.text.match(/^\|特性\|.*$/m)[0], / \/ \|$/, "既存コードの空欄区切りも除去する");
 
 const specialTraits = core.replaceSource("", core.calculate(sample({
   classKey: "降",
@@ -230,6 +236,10 @@ contentSettings.skills[0].upgraded = {
   enabled: true, name: "麗しの剣 EX", icon: "skill-np-charge.png", ct: "6",
   effects: [{ text: "自身のNPを増やす[Lv]", valueMode: "level10", values: ["20", "21", "22", "23", "24", "25", "26", "27", "28", "30"] }]
 };
+contentSettings.skills[1].base = {
+  name: "無窮の武練 A+++", icon: "", ct: "7",
+  effects: [{ text: "自身のスター集中度をアップ", valueMode: "fixed", values: ["3000"] }]
+};
 contentSettings.noble.base = {
   reading: "エクスカリバー", name: "約束された勝利の剣", rank: "A++", category: "対城宝具",
   effects: [
@@ -250,6 +260,7 @@ contentSettings.noble.upgraded = {
 };
 contentSettings.bond = {
   name: "遠き理想郷", icon: "skill-card-arts-up.png",
+  includeFieldCondition: true,
   effects: [
     { text: "味方全体のArtsカード性能をアップ", valueMode: "fixed", values: ["10"] },
     { prefix: "＆", text: "宝具威力をアップ", valueMode: "fixed", values: ["10"] }
@@ -262,8 +273,9 @@ const contentResult = core.calculate(sample({
 }));
 const contentGenerated = core.replaceSource("", contentResult);
 assert.deepEqual(contentGenerated.missing, []);
-assert.match(contentGenerated.text, /【対魔力 A】/);
-assert.match(contentGenerated.text, /【独自能力 EX】/);
+assert.match(contentGenerated.text, /&font\(b,110%\)\{対魔力 A\}/);
+assert.match(contentGenerated.text, /&font\(b,110%\)\{独自能力 EX\}/);
+assert.doesNotMatch(contentGenerated.text, /【(?:対魔力 A|独自能力 EX)】/);
 assert.match(contentGenerated.text, /&ref\(騎乗\.png,icon\/skill,height=48\)/);
 assert.match(contentGenerated.text, /\|~\|特殊な効果\|50\|/);
 assert.match(contentGenerated.text, /\*\*\*Skill1：麗しの剣 A/);
@@ -272,6 +284,7 @@ assert.match(contentGenerated.text, /#region\(close,第二再臨以降\)[\s\S]*\
 assert.match(contentGenerated.text, /&ref\(skill-critical-up\.png,icon\/skill,height=48\)/);
 assert.match(contentGenerated.text, /#region\(close,第三再臨以降\)[\s\S]*&ref\(skill-damage-up\.png,icon\/skill,height=48\)/);
 assert.match(contentGenerated.text, /\*\*\*Skill1\[強化後\]：麗しの剣 EX/);
+assert.match(contentGenerated.text, /\*\*\*Skill2：無窮の武練 A\+\+\+[\s\S]*&ref\(無窮の武練\.png,icon\/skill,height=48\)/, "アイコン未入力時はランクを除いたスキル名を使う");
 assert.match(contentGenerated.text, /\|~\|7\|＆宝具威力をアップ\|>\|>\|>\|>\|>\|>\|>\|>\|>\|30\|/);
 assert.match(contentGenerated.text, /~エクスカリバー&br\(\)約束された勝利の剣/);
 assert.match(contentGenerated.text, /\|BGCOLOR\(#F88\):Buster\|A\+\+\|対城宝具\|敵全体に強力な攻撃\[Lv\]\|300\|400\|450\|475\|500\|/);
@@ -279,8 +292,19 @@ assert.match(contentGenerated.text, /#region\(close,第三再臨以降\)[\s\S]*~
 assert.match(contentGenerated.text, /#region\(close,第三再臨以降\)[\s\S]*約束された勝利の剣・黒〔強化後〕[\s\S]*\|BGCOLOR\(#F88\):Buster\|A\+\+\|対城宝具\|敵全体に強力な攻撃\[Lv\]\|>\|>\|>\|>\|600\|[\s\S]*#endregion\(\)/);
 assert.match(contentGenerated.text, /約束された勝利の剣〔強化後〕/);
 assert.match(contentGenerated.text, /BGCOLOR\(#17184b\):COLOR\(white\):遠き理想郷/);
-assert.match(contentGenerated.text, /&font\(,b,#00cc58\)\{アルトリア\}装備時のみ、&br\(\)自身がフィールドにいる間、味方全体のArtsカード性能をアップ\|10\|/);
+assert.match(contentGenerated.text, /&font\(,b,#00cc58\)\{アルトリア〔剣〕\}装備時のみ、&br\(\)自身がフィールドにいる間、味方全体のArtsカード性能をアップ\|10\|/);
 assert.equal(core.replaceSource(contentGenerated.text, contentResult).text, contentGenerated.text, "生成コードへ再反映しても重複しない");
+
+const bondWithoutFieldSettings = core.createDefaultContentSettings();
+bondWithoutFieldSettings.bond = {
+  name: "星の記憶", icon: "星の記憶", includeFieldCondition: false,
+  effects: [{ text: "味方全体の攻撃力をアップ", valueMode: "fixed", values: ["10"] }]
+};
+const bondWithoutFieldText = core.replaceSource("", core.calculate(sample({
+  trueName: "謎のヒロイン", classKey: "降", contentSettings: bondWithoutFieldSettings
+}))).text;
+assert.match(bondWithoutFieldText, /&font\(,b,#00cc58\)\{謎のヒロイン〔降〕\}装備時のみ、&br\(\)味方全体の攻撃力をアップ\|10\|/);
+assert.doesNotMatch(bondWithoutFieldText, /自身がフィールドにいる間、/);
 
 const nobleColorSettings = core.createDefaultContentSettings();
 nobleColorSettings.noble.base = {
@@ -340,6 +364,26 @@ for (const [npType, attackCase] of Object.entries(attackCases)) {
     assert.ok(text.includes(`|${attackCase.text}|${attackCase[strength].join("|")}|`), `${npType}の${strength}倍率を出力する`);
   }
 }
+
+const consecutiveAttackSettings = core.createDefaultContentSettings();
+consecutiveAttackSettings.noble.base = {
+  npType: "busterAll", npHits: "5", reading: "テスト", name: "連続攻撃宝具", rank: "A", category: "対宝具",
+  effects: [
+    { text: "敵全体の防御力をダウン", valueMode: "fixed", values: ["10"] },
+    { effectType: "nobleAttack", attackTarget: "all", attackStrength: "base" },
+    { effectType: "nobleAttack", attackTarget: "single", attackStrength: "base" },
+    { effectType: "nobleAttack", attackTarget: "single", attackStrength: "upgraded" },
+    { text: "味方全体の攻撃力をアップ", valueMode: "fixed", values: ["10"] },
+    { effectType: "nobleAttack", attackTarget: "single", attackStrength: "base" }
+  ]
+};
+const consecutiveAttackText = core.replaceSource("", core.calculate(sample({
+  npType: "busterAll", npHits: 5, contentSettings: consecutiveAttackSettings
+}))).text;
+const busterLabel = "&font(85%,#fff,#e44,b){　Buster(x1.5)　}";
+assert.ok(consecutiveAttackText.includes(`|~|~|~|＆強力な攻撃[Lv] ${busterLabel}|300|400|450|475|500|`), "直前の通常効果と全体対象が同じなら対象を省略する");
+assert.ok(consecutiveAttackText.includes(`|~|~|~|＆超強力な攻撃[Lv] ${busterLabel}|800|1000|1100|1150|1200|`), "直前の宝具攻撃と単体対象が同じなら対象を省略する");
+assert.equal((consecutiveAttackText.match(/敵単体に超強力な攻撃\[Lv\]/g) || []).length, 2, "対象が異なる直後と対象不明の直後は単体対象を省略しない");
 
 const specialAttackSettings = core.createDefaultContentSettings();
 specialAttackSettings.noble.base = {

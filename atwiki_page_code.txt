@@ -2,5 +2,5 @@
 
 &html(<div id="fgo-status-calculator"></div>)
 #javascript(){{
-<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/siroihuman/fgo-status-calculator/v1.5.2/FGO_StatusCalculator_atwiki.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/siroihuman/fgo-status-calculator/v1.5.3/FGO_StatusCalculator_atwiki.js"></script>
 }}
