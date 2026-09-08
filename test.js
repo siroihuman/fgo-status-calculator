@@ -9,11 +9,11 @@ require("./FGO_StatusCalculator_atwiki.js");
 const core = globalThis.FGOStatusCalculatorCore;
 const calculatorSource = fs.readFileSync("FGO_StatusCalculator_atwiki.js", "utf8");
 const atwikiPageCode = fs.readFileSync("atwiki_page_code.txt", "utf8");
-assert.equal(core.VERSION, "1.5.3");
+assert.equal(core.VERSION, "1.5.4");
 assert.doesNotMatch(calculatorSource, /\bparent(?:Element)?\b/, "atwikiのinclude_js検査で拒否される文字列を含めない");
 assert.doesNotMatch(calculatorSource, /#include/, "atwikiのinclude_js検査で拒否されるinclude文字列を含めない");
 assert.doesNotMatch(atwikiPageCode, /^#include_js/m, "設置コードではinclude_jsを使用しない");
-assert.match(atwikiPageCode, /#javascript\(\)\{\{[\s\S]*<script type="text\/javascript" src="https:\/\/cdn\.jsdelivr\.net\/gh\/siroihuman\/fgo-status-calculator\/v1\.5\.3\/FGO_StatusCalculator_atwiki\.js"><\/script>[\s\S]*\}\}/);
+assert.match(atwikiPageCode, /#javascript\(\)\{\{[\s\S]*<script type="text\/javascript" src="https:\/\/cdn\.jsdelivr\.net\/gh\/siroihuman\/fgo-status-calculator\/v1\.5\.4\/FGO_StatusCalculator_atwiki\.js"><\/script>[\s\S]*\}\}/);
 assert.match(calculatorSource, /\{ label: "基本", traits: \["ギリシャ神話系男性"\] \}/);
 assert.doesNotMatch(calculatorSource, /label: "追加属性"/);
 assert.match(calculatorSource, /入力した特性：/);
@@ -272,28 +272,48 @@ const contentResult = core.calculate(sample({
   npType: "busterAll", contentSettings
 }));
 const contentGenerated = core.replaceSource("", contentResult);
+const ownedContentSection = core.buildOwnedSkillsSection(contentResult.input.contentSettings);
+const nobleContentSection = core.buildNobleSection(contentResult.input.contentSettings, contentResult);
 assert.deepEqual(contentGenerated.missing, []);
 assert.match(contentGenerated.text, /&font\(b,110%\)\{対魔力 A\}/);
 assert.match(contentGenerated.text, /&font\(b,110%\)\{独自能力 EX\}/);
 assert.doesNotMatch(contentGenerated.text, /【(?:対魔力 A|独自能力 EX)】/);
 assert.match(contentGenerated.text, /&ref\(騎乗\.png,icon\/skill,height=48\)/);
 assert.match(contentGenerated.text, /\|~\|特殊な効果\|50\|/);
-assert.match(contentGenerated.text, /\*\*\*Skill1：麗しの剣 A/);
-assert.match(contentGenerated.text, /#region\(close,第二再臨以降\)\n\*\*\*Skill1：麗しの剣 A\+/);
-assert.match(contentGenerated.text, /#region\(close,第二再臨以降\)[\s\S]*\*\*\*Skill1\[強化後\]：麗しの剣 A\+〔強化後〕[\s\S]*#endregion\(\)/);
+assert.match(ownedContentSection, /\*\*\*Skill1\[第一再臨時\]：麗しの剣 A/);
+assert.match(ownedContentSection, /#region\(close,第二再臨時\)\n\*\*\*Skill1\[第二再臨時\]：麗しの剣 A\+/);
+assert.match(ownedContentSection, /#region\(close,第二再臨時\)[\s\S]*\*\*\*Skill1\[第二再臨時\]\[強化後\]：麗しの剣 A\+〔強化後〕[\s\S]*#endregion\(\)/);
 assert.match(contentGenerated.text, /&ref\(skill-critical-up\.png,icon\/skill,height=48\)/);
-assert.match(contentGenerated.text, /#region\(close,第三再臨以降\)[\s\S]*&ref\(skill-damage-up\.png,icon\/skill,height=48\)/);
-assert.match(contentGenerated.text, /\*\*\*Skill1\[強化後\]：麗しの剣 EX/);
+assert.match(ownedContentSection, /\*\*\*Skill1\[第三再臨時\]：真なる麗しの剣 A\+\+[\s\S]*&ref\(skill-damage-up\.png,icon\/skill,height=48\)/);
+assert.doesNotMatch(ownedContentSection, /#region\(close,第三再臨時\)/, "効果も変わる第三再臨差分はregionで囲わない");
+assert.match(ownedContentSection, /\*\*\*Skill1\[第一再臨時\]\[強化後\]：麗しの剣 EX/);
 assert.match(contentGenerated.text, /\*\*\*Skill2：無窮の武練 A\+\+\+[\s\S]*&ref\(無窮の武練\.png,icon\/skill,height=48\)/, "アイコン未入力時はランクを除いたスキル名を使う");
 assert.match(contentGenerated.text, /\|~\|7\|＆宝具威力をアップ\|>\|>\|>\|>\|>\|>\|>\|>\|>\|30\|/);
 assert.match(contentGenerated.text, /~エクスカリバー&br\(\)約束された勝利の剣/);
 assert.match(contentGenerated.text, /\|BGCOLOR\(#F88\):Buster\|A\+\+\|対城宝具\|敵全体に強力な攻撃\[Lv\]\|300\|400\|450\|475\|500\|/);
-assert.match(contentGenerated.text, /#region\(close,第三再臨以降\)[\s\S]*~エクスカリバー・モルガン&br\(\)約束された勝利の剣・黒/);
-assert.match(contentGenerated.text, /#region\(close,第三再臨以降\)[\s\S]*約束された勝利の剣・黒〔強化後〕[\s\S]*\|BGCOLOR\(#F88\):Buster\|A\+\+\|対城宝具\|敵全体に強力な攻撃\[Lv\]\|>\|>\|>\|>\|600\|[\s\S]*#endregion\(\)/);
+assert.match(nobleContentSection, /\*\*\*宝具\[第一・第二再臨時\]/);
+assert.match(nobleContentSection, /#region\(close,第三再臨時\)[\s\S]*\*\*\*宝具\[第三再臨時\][\s\S]*~エクスカリバー・モルガン&br\(\)約束された勝利の剣・黒/);
+assert.match(nobleContentSection, /#region\(close,第三再臨時\)[\s\S]*約束された勝利の剣・黒〔強化後〕[\s\S]*\|BGCOLOR\(#F88\):Buster\|A\+\+\|対城宝具\|敵全体に強力な攻撃\[Lv\]\|>\|>\|>\|>\|600\|[\s\S]*#endregion\(\)/);
 assert.match(contentGenerated.text, /約束された勝利の剣〔強化後〕/);
 assert.match(contentGenerated.text, /BGCOLOR\(#17184b\):COLOR\(white\):遠き理想郷/);
 assert.match(contentGenerated.text, /&font\(,b,#00cc58\)\{アルトリア〔剣〕\}装備時のみ、&br\(\)自身がフィールドにいる間、味方全体のArtsカード性能をアップ\|10\|/);
 assert.equal(core.replaceSource(contentGenerated.text, contentResult).text, contentGenerated.text, "生成コードへ再反映しても重複しない");
+
+const skillRangeSettings = core.createDefaultContentSettings();
+skillRangeSettings.skills[0].base.name = "通常スキル A";
+skillRangeSettings.skills[0].variants[0] = Object.assign(skillRangeSettings.skills[0].variants[0], {
+  enabled: true, changeMode: "name", name: "第二以降スキル A+"
+});
+const secondOnlySkillSection = core.buildOwnedSkillsSection(core.normalizeContentSettings(skillRangeSettings));
+assert.match(secondOnlySkillSection, /\*\*\*Skill1\[第一再臨時\]：通常スキル A/);
+assert.match(secondOnlySkillSection, /#region\(close,第二・第三再臨時\)\n\*\*\*Skill1\[第二・第三再臨時\]：第二以降スキル A\+/);
+skillRangeSettings.skills[0].variants[0].enabled = false;
+skillRangeSettings.skills[0].variants[1] = Object.assign(skillRangeSettings.skills[0].variants[1], {
+  enabled: true, changeMode: "name", name: "第三スキル A++"
+});
+const thirdOnlySkillSection = core.buildOwnedSkillsSection(core.normalizeContentSettings(skillRangeSettings));
+assert.match(thirdOnlySkillSection, /\*\*\*Skill1\[第一・第二再臨時\]：通常スキル A/);
+assert.match(thirdOnlySkillSection, /#region\(close,第三再臨時\)\n\*\*\*Skill1\[第三再臨時\]：第三スキル A\+\+/);
 
 const bondWithoutFieldSettings = core.createDefaultContentSettings();
 bondWithoutFieldSettings.bond = {
@@ -322,10 +342,28 @@ const nobleColorResult = core.calculate(sample({
 }));
 const nobleColorGenerated = core.replaceSource("", nobleColorResult).text;
 assert.match(nobleColorGenerated, /^\|BGCOLOR\(#e6e6fa\):相性\|人\|.*\|宝具\|BGCOLOR\(#9AF\):補助Ａ\|\n\|~\|~\|~\|~\|~\|~\|~\|BGCOLOR\(#F88\):全体Ｂ\|$/m);
-assert.match(nobleColorGenerated, /#region\(close,第二再臨以降\)[\s\S]*\|BGCOLOR\(#F88\):Buster\|D\|対人宝具\|/);
+assert.match(nobleColorGenerated, /\*\*\*宝具\[第一再臨時\]/);
+assert.match(nobleColorGenerated, /#region\(close,第二・第三再臨時\)[\s\S]*\*\*\*宝具\[第二・第三再臨時\][\s\S]*\|BGCOLOR\(#F88\):Buster\|D\|対人宝具\|/);
 assert.match(nobleColorGenerated, /^\|~\|4\|4\|4\|5\|BGCOLOR\(#9AF\):0\|DR&footnote[^\n]*\n\|~\|~\|~\|~\|~\|BGCOLOR\(#F88\):8\|~\|~\|$/m);
 assert.doesNotMatch(nobleColorGenerated, /補助Ａ／全体Ｂ/);
 assert.equal(core.replaceSource(nobleColorGenerated, nobleColorResult).text, nobleColorGenerated, "差分宝具種類を再反映しても維持する");
+
+const nobleEffectVariantSettings = core.createDefaultContentSettings();
+nobleEffectVariantSettings.noble.base = {
+  npType: "artsAll", npHits: "4", reading: "通常", name: "通常宝具", rank: "A", category: "対宝具",
+  effects: [{ text: "敵全体の防御力をダウン", valueMode: "fixed", values: ["10"] }]
+};
+nobleEffectVariantSettings.noble.variants[0] = {
+  enabled: true, stage: "2", changeMode: "nameEffect", npType: "", npHits: "",
+  reading: "差分", name: "差分宝具", rank: "A+", category: "対宝具",
+  effects: [{ text: "敵全体の防御力をダウン", valueMode: "fixed", values: ["20"] }],
+  upgraded: { enabled: false }
+};
+const nobleEffectVariantResult = core.calculate(sample({ contentSettings: nobleEffectVariantSettings }));
+const nobleEffectVariantSection = core.buildNobleSection(nobleEffectVariantResult.input.contentSettings, nobleEffectVariantResult);
+assert.match(nobleEffectVariantSection, /\*\*\*宝具\[第一再臨時\]/);
+assert.match(nobleEffectVariantSection, /\*\*\*宝具\[第二・第三再臨時\][\s\S]*差分&br\(\)差分宝具/);
+assert.doesNotMatch(nobleEffectVariantSection, /#region\(close,第二・第三再臨時\)/, "効果も変わる宝具差分はregionで囲わない");
 
 const attackCases = {
   busterSingle: {
