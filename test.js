@@ -8,7 +8,7 @@ require("./FGO_StatusCalculator_atwiki.js");
 
 const core = globalThis.FGOStatusCalculatorCore;
 const calculatorSource = fs.readFileSync("FGO_StatusCalculator_atwiki.js", "utf8");
-assert.equal(core.VERSION, "1.4.0");
+assert.equal(core.VERSION, "1.4.1");
 assert.match(calculatorSource, /\{ label: "基本", traits: \["ギリシャ神話系男性"\] \}/);
 assert.doesNotMatch(calculatorSource, /label: "追加属性"/);
 assert.match(calculatorSource, /入力した特性：/);
@@ -23,11 +23,24 @@ assert.match(calculatorSource, /自由入力/);
 assert.match(calculatorSource, /入力した効果一覧/);
 assert.match(calculatorSource, /fsc-entry-tone-/);
 assert.match(calculatorSource, /差分の宝具種類/);
+assert.match(calculatorSource, /noble\.base\.npType/);
+assert.match(calculatorSource, /noble\.base\.npHits/);
+assert.doesNotMatch(calculatorSource, /select\("npType"|numberInput\("npHits"/);
 
 assert.equal(core.formatEffectSuffix("turn", "", "3"), "(3T)");
 assert.equal(core.formatEffectSuffix("count", "2", ""), "(2回)");
 assert.equal(core.formatEffectSuffix("both", "5", "10"), "(5回・10T)");
 assert.equal(core.formatEffectSuffix("both", "", "3"), "");
+const normalizedNobleInputs = core.normalizeContentSettings({
+  noble: {
+    base: { npType: "quickAll", npHits: "9" },
+    variants: [{ enabled: true, stage: "2", npType: "busterSingle", npHits: "7" }]
+  }
+});
+assert.equal(normalizedNobleInputs.noble.base.npType, "quickAll");
+assert.equal(normalizedNobleInputs.noble.base.npHits, "9");
+assert.equal(normalizedNobleInputs.noble.variants[0].npType, "busterSingle");
+assert.equal(normalizedNobleInputs.noble.variants[0].npHits, "7");
 
 function sample(overrides) {
   return Object.assign({
@@ -84,6 +97,7 @@ assert.match(generated.text, /^\|特性\|.*サーヴァント \/ 人型 \/ 女�
 assert.deepEqual(core.parseTraitsFromSource(generated.text), ["サーヴァント", "人型", "女性", "混沌", "悪", "地の力", "バーサーカー", "神性", "蛇", "梁山泊", "複数で一騎"]);
 assert.match(generated.text, /\/\/─┤クラススキル├/);
 assert.match(generated.text, /\/\/─┤絆礼装├/);
+assert.match(generated.text, /^\|~\|3\|3\|4\|5\|BGCOLOR\(#F88\):6\|DR&footnote/m);
 
 const oldSource = templateFile
   .replace(/【ページ名】/g, "旧名")
@@ -192,18 +206,23 @@ assert.equal(core.replaceSource(contentGenerated.text, contentResult).text, cont
 
 const nobleColorSettings = core.createDefaultContentSettings();
 nobleColorSettings.noble.base = {
-  reading: "アルス・ノヴァ", name: "訣別の時きたれり、其は世界を手放すもの", rank: "D", category: "対人宝具", effects: []
+  reading: "アルス・ノヴァ", name: "訣別の時きたれり、其は世界を手放すもの", rank: "D", category: "対人宝具", effects: [],
+  npType: "artsSupport", npHits: "0"
 };
 nobleColorSettings.noble.variants[0] = {
-  enabled: true, stage: "2", changeMode: "name", npType: "busterAll",
+  enabled: true, stage: "2", changeMode: "name", npType: "busterAll", npHits: "8",
   reading: "アルス・アルマデル・サロモニス", name: "誕生の時きたれり、其は全てを修めるもの",
   rank: "", category: "", effects: []
 };
-const nobleColorResult = core.calculate(sample({ npType: "artsSupport", contentSettings: nobleColorSettings }));
+const nobleColorResult = core.calculate(sample({
+  npType: undefined, npHits: undefined, quickHits: 4, artsHits: 4, busterHits: 4, extraHits: 5,
+  affinity: "人", contentSettings: nobleColorSettings
+}));
 const nobleColorGenerated = core.replaceSource("", nobleColorResult).text;
-assert.match(nobleColorGenerated, /^\|BGCOLOR\(#e6e6fa\):相性\|.*\|宝具\|BGCOLOR\(#9AF\):補助Ａ／全体Ｂ\|$/m);
+assert.match(nobleColorGenerated, /^\|BGCOLOR\(#e6e6fa\):相性\|人\|.*\|宝具\|BGCOLOR\(#9AF\):補助Ａ\|\n\|~\|~\|~\|~\|~\|~\|~\|BGCOLOR\(#F88\):全体Ｂ\|$/m);
 assert.match(nobleColorGenerated, /#region\(close,第二再臨以降\)[\s\S]*\|BGCOLOR\(#F88\):Buster\|D\|対人宝具\|/);
-assert.equal((nobleColorGenerated.match(/補助Ａ／全体Ｂ/g) || []).length, 1, "差分宝具情報を隠しステータスへ一度だけ表示する");
+assert.match(nobleColorGenerated, /^\|~\|4\|4\|4\|5\|BGCOLOR\(#9AF\):0\|DR&footnote[^\n]*\n\|~\|~\|~\|~\|~\|BGCOLOR\(#F88\):8\|~\|~\|$/m);
+assert.doesNotMatch(nobleColorGenerated, /補助Ａ／全体Ｂ/);
 assert.equal(core.replaceSource(nobleColorGenerated, nobleColorResult).text, nobleColorGenerated, "差分宝具種類を再反映しても維持する");
 
 console.log("All tests passed.");
