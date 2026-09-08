@@ -8,6 +8,7 @@ require("./FGO_StatusCalculator_atwiki.js");
 
 const core = globalThis.FGOStatusCalculatorCore;
 const calculatorSource = fs.readFileSync("FGO_StatusCalculator_atwiki.js", "utf8");
+assert.equal(core.VERSION, "1.4.0");
 assert.match(calculatorSource, /\{ label: "基本", traits: \["ギリシャ神話系男性"\] \}/);
 assert.doesNotMatch(calculatorSource, /label: "追加属性"/);
 assert.match(calculatorSource, /入力した特性：/);
@@ -17,6 +18,16 @@ assert.doesNotMatch(calculatorSource, /addOwnedSkill|addNoble|addBond|第四再�
 assert.match(calculatorSource, /効果を追加/);
 assert.match(calculatorSource, /特殊記述を使用/);
 assert.match(calculatorSource, /この再臨差分の強化後を使用/);
+assert.match(calculatorSource, /data-content-action="appendDuration"/);
+assert.match(calculatorSource, /自由入力/);
+assert.match(calculatorSource, /入力した効果一覧/);
+assert.match(calculatorSource, /fsc-entry-tone-/);
+assert.match(calculatorSource, /差分の宝具種類/);
+
+assert.equal(core.formatEffectSuffix("turn", "", "3"), "(3T)");
+assert.equal(core.formatEffectSuffix("count", "2", ""), "(2回)");
+assert.equal(core.formatEffectSuffix("both", "5", "10"), "(5回・10T)");
+assert.equal(core.formatEffectSuffix("both", "", "3"), "");
 
 function sample(overrides) {
   return Object.assign({
@@ -178,5 +189,21 @@ assert.match(contentGenerated.text, /約束された勝利の剣〔強化後〕/
 assert.match(contentGenerated.text, /BGCOLOR\(#17184b\):COLOR\(white\):遠き理想郷/);
 assert.match(contentGenerated.text, /&font\(,b,#00cc58\)\{アルトリア\}装備時のみ、&br\(\)自身がフィールドにいる間、味方全体のArtsカード性能をアップ\|10\|/);
 assert.equal(core.replaceSource(contentGenerated.text, contentResult).text, contentGenerated.text, "生成コードへ再反映しても重複しない");
+
+const nobleColorSettings = core.createDefaultContentSettings();
+nobleColorSettings.noble.base = {
+  reading: "アルス・ノヴァ", name: "訣別の時きたれり、其は世界を手放すもの", rank: "D", category: "対人宝具", effects: []
+};
+nobleColorSettings.noble.variants[0] = {
+  enabled: true, stage: "2", changeMode: "name", npType: "busterAll",
+  reading: "アルス・アルマデル・サロモニス", name: "誕生の時きたれり、其は全てを修めるもの",
+  rank: "", category: "", effects: []
+};
+const nobleColorResult = core.calculate(sample({ npType: "artsSupport", contentSettings: nobleColorSettings }));
+const nobleColorGenerated = core.replaceSource("", nobleColorResult).text;
+assert.match(nobleColorGenerated, /^\|BGCOLOR\(#e6e6fa\):相性\|.*\|宝具\|BGCOLOR\(#9AF\):補助Ａ／全体Ｂ\|$/m);
+assert.match(nobleColorGenerated, /#region\(close,第二再臨以降\)[\s\S]*\|BGCOLOR\(#F88\):Buster\|D\|対人宝具\|/);
+assert.equal((nobleColorGenerated.match(/補助Ａ／全体Ｂ/g) || []).length, 1, "差分宝具情報を隠しステータスへ一度だけ表示する");
+assert.equal(core.replaceSource(nobleColorGenerated, nobleColorResult).text, nobleColorGenerated, "差分宝具種類を再反映しても維持する");
 
 console.log("All tests passed.");
