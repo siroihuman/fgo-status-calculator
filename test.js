@@ -9,11 +9,11 @@ require("./FGO_StatusCalculator_atwiki.js");
 const core = globalThis.FGOStatusCalculatorCore;
 const calculatorSource = fs.readFileSync("FGO_StatusCalculator_atwiki.js", "utf8");
 const atwikiPageCode = fs.readFileSync("atwiki_page_code.txt", "utf8");
-assert.equal(core.VERSION, "1.5.4");
+assert.equal(core.VERSION, "1.5.5");
 assert.doesNotMatch(calculatorSource, /\bparent(?:Element)?\b/, "atwikiのinclude_js検査で拒否される文字列を含めない");
 assert.doesNotMatch(calculatorSource, /#include/, "atwikiのinclude_js検査で拒否されるinclude文字列を含めない");
 assert.doesNotMatch(atwikiPageCode, /^#include_js/m, "設置コードではinclude_jsを使用しない");
-assert.match(atwikiPageCode, /#javascript\(\)\{\{[\s\S]*<script type="text\/javascript" src="https:\/\/cdn\.jsdelivr\.net\/gh\/siroihuman\/fgo-status-calculator\/v1\.5\.4\/FGO_StatusCalculator_atwiki\.js"><\/script>[\s\S]*\}\}/);
+assert.match(atwikiPageCode, /#javascript\(\)\{\{[\s\S]*<script type="text\/javascript" src="https:\/\/cdn\.jsdelivr\.net\/gh\/siroihuman\/fgo-status-calculator\/v1\.5\.5\/FGO_StatusCalculator_atwiki\.js"><\/script>[\s\S]*\}\}/);
 assert.match(calculatorSource, /\{ label: "基本", traits: \["ギリシャ神話系男性"\] \}/);
 assert.doesNotMatch(calculatorSource, /label: "追加属性"/);
 assert.match(calculatorSource, /入力した特性：/);
@@ -69,11 +69,15 @@ const fixedValueNormalization = core.normalizeContentSettings({
 });
 assert.deepEqual(fixedValueNormalization.skills[0].base.effects[0].values, ["10"], "固定値へ変更したらLv.2以降を破棄する");
 const uiSettings = core.createDefaultContentSettings();
+uiSettings.classSkills[0].icon = "対魔力.png";
 uiSettings.classSkills[0].effects = [{ text: "弱体耐性をアップ", valueMode: "fixed", values: ["20"] }];
+uiSettings.skills[0].base.icon = "攻撃力アップ.png";
 uiSettings.skills[0].base.effects = [{ text: "攻撃力をアップ[Lv]", valueMode: "level10", values: ["10"] }];
 uiSettings.skills[0].variants[0] = Object.assign(uiSettings.skills[0].variants[0], {
-  enabled: true, changeMode: "nameEffect", effects: [{ text: "差分効果", valueMode: "fixed", values: ["20"] }]
+  enabled: true, changeMode: "all", icon: "クリティカル威力アップ.png", effects: [{ text: "差分効果", valueMode: "fixed", values: ["20"] }],
+  upgraded: { enabled: true, icon: "NP獲得.png", effects: [] }
 });
+uiSettings.skills[0].upgraded = { enabled: true, icon: "NP増加.png", effects: [] };
 uiSettings.noble.base.effects = [{ text: "防御力をダウン[Lv](3T)<OC:効果UP>", valueMode: "oc5", values: ["10"] }];
 uiSettings.noble.variants[0] = Object.assign(uiSettings.noble.variants[0], {
   enabled: true, changeMode: "nameEffect", effects: [{ text: "差分効果", valueMode: "fixed", values: ["20"] }]
@@ -93,6 +97,22 @@ assert.match(renderedEditors.noble, /data-scroll-target="fsc-editor-noble-varian
 assert.doesNotMatch(renderedEditors.skills + renderedEditors.noble, /data-duration-select/);
 assert.match(renderedEditors.bond, /data-model-path="bond\.includeFieldCondition" checked/);
 assert.match(renderedEditors.bond, /「自身がフィールドにいる間、」を含める/);
+assert.match(renderedEditors.classSkills, /data-skill-icon-picker-for="classSkills\.0\.icon"/);
+assert.match(renderedEditors.classSkills, /data-model-path="classSkills\.0\.icon" value="対魔力\.png"/);
+assert.match(renderedEditors.skills, /data-skill-icon-picker-for="skills\.0\.base\.icon"/);
+assert.match(renderedEditors.skills, /data-skill-icon-picker-for="skills\.0\.variants\.0\.icon"/);
+assert.match(renderedEditors.skills, /data-skill-icon-picker-for="skills\.0\.variants\.0\.upgraded\.icon"/);
+assert.match(renderedEditors.skills, /data-skill-icon-picker-for="skills\.0\.upgraded\.icon"/);
+assert.doesNotMatch(renderedEditors.classSkills + renderedEditors.skills, /アイコンファイル名/);
+assert.match(renderedEditors.bond, /type="text" data-model-path="bond\.icon"/);
+assert.doesNotMatch(renderedEditors.bond, /data-skill-icon-picker-for="bond\.icon"/);
+assert.equal(core.SKILL_ICON_PAGE_URL, "https://w.atwiki.jp/siroi_human/pages/20.html");
+assert.equal(core.normalizeSkillIconFilename("https://img.atwiki.jp/siroi_human/attach/20/136/%E5%AF%BE%E9%AD%94%E5%8A%9B.png"), "対魔力.png");
+assert.match(core.skillIconModalHtml(), /スキルアイコン選択/);
+assert.match(core.skillIconModalHtml(), /placeholder="アイコン名を検索"/);
+assert.match(core.skillIconModalHtml(), /data-skill-icon-refresh>アイコン一覧を更新/);
+assert.match(core.skillIconModalHtml(), /data-skill-icon-close/);
+assert.match(calculatorSource, /cache: "no-store"/);
 
 function sample(overrides) {
   return Object.assign({
