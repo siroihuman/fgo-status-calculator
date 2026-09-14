@@ -9,11 +9,11 @@ require("./FGO_StatusCalculator_atwiki.js");
 const core = globalThis.FGOStatusCalculatorCore;
 const calculatorSource = fs.readFileSync("FGO_StatusCalculator_atwiki.js", "utf8");
 const atwikiPageCode = fs.readFileSync("atwiki_page_code.txt", "utf8");
-assert.equal(core.VERSION, "1.5.6");
+assert.equal(core.VERSION, "1.5.7");
 assert.doesNotMatch(calculatorSource, /\bparent(?:Element)?\b/, "atwikiのinclude_js検査で拒否される文字列を含めない");
 assert.doesNotMatch(calculatorSource, /#include/, "atwikiのinclude_js検査で拒否されるinclude文字列を含めない");
 assert.doesNotMatch(atwikiPageCode, /^#include_js/m, "設置コードではinclude_jsを使用しない");
-assert.match(atwikiPageCode, /#javascript\(\)\{\{[\s\S]*<script type="text\/javascript" src="https:\/\/cdn\.jsdelivr\.net\/gh\/siroihuman\/fgo-status-calculator\/v1\.5\.6\/FGO_StatusCalculator_atwiki\.js"><\/script>[\s\S]*\}\}/);
+assert.match(atwikiPageCode, /#javascript\(\)\{\{[\s\S]*<script type="text\/javascript" src="https:\/\/cdn\.jsdelivr\.net\/gh\/siroihuman\/fgo-status-calculator\/v1\.5\.7\/FGO_StatusCalculator_atwiki\.js"><\/script>[\s\S]*\}\}/);
 assert.match(calculatorSource, /\{ label: "基本", traits: \["ギリシャ神話系男性"\] \}/);
 assert.doesNotMatch(calculatorSource, /label: "追加属性"/);
 assert.match(calculatorSource, /入力した特性：/);
@@ -37,6 +37,8 @@ assert.match(calculatorSource, /霊衣名（任意）/);
 assert.match(calculatorSource, /noble\.base\.npType/);
 assert.match(calculatorSource, /noble\.base\.npHits/);
 assert.match(calculatorSource, /!currentEffects\.length[\s\S]*preUpgradeEffects\(contentState, path\)/, "入力済みの強化後効果を上書きせず、空欄時だけ強化前効果を複製する");
+assert.match(calculatorSource, /data-content-action="copyPreUpgradeEffects"/);
+assert.match(calculatorSource, /現在の強化後効果をすべて削除し、強化前の効果で置き換えます/);
 assert.doesNotMatch(calculatorSource, /select\("npType"|numberInput\("npHits"/);
 
 assert.equal(core.formatEffectSuffix("turn", "", "3"), "(3T)");
@@ -82,8 +84,10 @@ uiSettings.skills[0].variants[0] = Object.assign(uiSettings.skills[0].variants[0
 uiSettings.skills[0].upgraded = { enabled: true, icon: "NP増加.png", effects: [] };
 uiSettings.noble.base.effects = [{ text: "防御力をダウン[Lv](3T)<OC:効果UP>", valueMode: "oc5", values: ["10"] }];
 uiSettings.noble.variants[0] = Object.assign(uiSettings.noble.variants[0], {
-  enabled: true, changeMode: "nameEffect", effects: [{ text: "差分効果", valueMode: "fixed", values: ["20"] }]
+  enabled: true, changeMode: "nameEffect", effects: [{ text: "差分効果", valueMode: "fixed", values: ["20"] }],
+  upgraded: { enabled: true, effects: [] }
 });
+uiSettings.noble.upgraded = { enabled: true, effects: [] };
 const renderedEditors = core.renderContentSettingsEditors(core.normalizeContentSettings(uiSettings));
 assert.doesNotMatch(renderedEditors.classSkills, /data-content-action="toggleToken"/);
 assert.match(renderedEditors.skills, /data-token="\[Lv\]"/);
@@ -106,6 +110,10 @@ assert.match(renderedEditors.skills, /data-skill-icon-picker-for="skills\.0\.bas
 assert.match(renderedEditors.skills, /data-skill-icon-picker-for="skills\.0\.variants\.0\.icon"/);
 assert.match(renderedEditors.skills, /data-skill-icon-picker-for="skills\.0\.variants\.0\.upgraded\.icon"/);
 assert.match(renderedEditors.skills, /data-skill-icon-picker-for="skills\.0\.upgraded\.icon"/);
+assert.match(renderedEditors.skills, /data-content-action="copyPreUpgradeEffects" data-enabled-path="skills\.0\.upgraded\.enabled">強化前の効果を複製/);
+assert.match(renderedEditors.skills, /data-enabled-path="skills\.0\.variants\.0\.upgraded\.enabled">強化前の効果を複製/);
+assert.match(renderedEditors.noble, /data-enabled-path="noble\.upgraded\.enabled">強化前の効果を複製/);
+assert.match(renderedEditors.noble, /data-enabled-path="noble\.variants\.0\.upgraded\.enabled">強化前の効果を複製/);
 assert.doesNotMatch(renderedEditors.classSkills + renderedEditors.skills, /アイコンファイル名/);
 assert.match(renderedEditors.bond, /type="text" data-model-path="bond\.icon"/);
 assert.doesNotMatch(renderedEditors.bond, /data-skill-icon-picker-for="bond\.icon"/);
@@ -144,6 +152,21 @@ inheritedSettings.noble.variants[1] = Object.assign(inheritedSettings.noble.vari
 inheritedEffects = core.preUpgradeEffects(inheritedSettings, "noble.variants.1.upgraded.enabled");
 assert.equal(inheritedEffects[0].text, "第三再臨宝具の強化前効果");
 assert.deepEqual(core.preUpgradeEffects(inheritedSettings, "bond.upgraded.enabled"), []);
+
+inheritedSettings.skills[0].upgraded.effects = [
+  { text: "削除される強化後効果1", valueMode: "fixed", values: ["999"] },
+  { text: "削除される強化後効果2", valueMode: "fixed", values: ["888"] }
+];
+assert.equal(core.replaceUpgradedEffects(inheritedSettings, "skills.0.upgraded.enabled"), true);
+assert.equal(inheritedSettings.skills[0].upgraded.effects.length, 1, "既存の強化後効果を残さず全置換する");
+assert.equal(inheritedSettings.skills[0].upgraded.effects[0].text, "強化前スキル効果[Lv]");
+inheritedSettings.skills[0].upgraded.effects[0].values[0] = "777";
+assert.equal(inheritedSettings.skills[0].base.effects[0].values[0], "10", "手動複製後の編集も強化前へ影響しない");
+inheritedSettings.noble.upgraded.effects = [{ text: "削除される宝具効果", valueMode: "fixed", values: ["999"] }];
+assert.equal(core.replaceUpgradedEffects(inheritedSettings, "noble.upgraded.enabled"), true);
+assert.equal(inheritedSettings.noble.upgraded.effects.length, 1);
+assert.equal(inheritedSettings.noble.upgraded.effects[0].text, "通常宝具の強化前効果");
+assert.equal(core.replaceUpgradedEffects(inheritedSettings, "bond.upgraded.enabled"), false);
 
 function sample(overrides) {
   return Object.assign({
