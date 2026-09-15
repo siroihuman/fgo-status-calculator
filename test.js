@@ -9,11 +9,11 @@ require("./FGO_StatusCalculator_atwiki.js");
 const core = globalThis.FGOStatusCalculatorCore;
 const calculatorSource = fs.readFileSync("FGO_StatusCalculator_atwiki.js", "utf8");
 const atwikiPageCode = fs.readFileSync("atwiki_page_code.txt", "utf8");
-assert.equal(core.VERSION, "1.5.9");
+assert.equal(core.VERSION, "1.5.10");
 assert.doesNotMatch(calculatorSource, /\bparent(?:Element)?\b/, "atwikiのinclude_js検査で拒否される文字列を含めない");
 assert.doesNotMatch(calculatorSource, /#include/, "atwikiのinclude_js検査で拒否されるinclude文字列を含めない");
 assert.doesNotMatch(atwikiPageCode, /^#include_js/m, "設置コードではinclude_jsを使用しない");
-assert.match(atwikiPageCode, /#javascript\(\)\{\{[\s\S]*<script type="text\/javascript" src="https:\/\/cdn\.jsdelivr\.net\/gh\/siroihuman\/fgo-status-calculator\/v1\.5\.9\/FGO_StatusCalculator_atwiki\.js"><\/script>[\s\S]*\}\}/);
+assert.match(atwikiPageCode, /#javascript\(\)\{\{[\s\S]*<script type="text\/javascript" src="https:\/\/cdn\.jsdelivr\.net\/gh\/siroihuman\/fgo-status-calculator\/v1\.5\.10\/FGO_StatusCalculator_atwiki\.js"><\/script>[\s\S]*\}\}/);
 assert.match(calculatorSource, /\{ label: "基本", traits: \["ギリシャ神話系男性"\] \}/);
 assert.doesNotMatch(calculatorSource, /label: "追加属性"/);
 assert.match(calculatorSource, /入力した特性：/);
@@ -47,6 +47,15 @@ assert.equal(core.formatEffectSuffix("turn", "", "3"), "(3T)");
 assert.equal(core.formatEffectSuffix("count", "2", ""), "(2回)");
 assert.equal(core.formatEffectSuffix("both", "5", "10"), "(5回・10T)");
 assert.equal(core.formatEffectSuffix("both", "", "3"), "");
+assert.equal(core.normalizeEffectChance(""), "");
+assert.equal(core.normalizeEffectChance("100％"), "100");
+assert.equal(core.normalizeEffectChance("101%"), "101");
+assert.equal(core.normalizeEffectChance("100.5"), "");
+assert.equal(core.normalizeEffectChance("invalid"), "");
+assert.equal(core.formatEffectChance("0"), " 確率0％");
+assert.equal(core.formatEffectChance("100"), " 確率100％");
+assert.equal(core.formatEffectChance("101"), " &color(#FF0000){確率101％}");
+assert.equal(core.formatEffectChance("500"), " &color(#FF0000){確率500％}");
 assert.equal(core.insertEffectNotation("攻撃<OC:効果UP>[Lv]", "(3T)"), "攻撃[Lv](3T)<OC:効果UP>");
 assert.equal(core.insertEffectNotation("攻撃[Lv](3T)<OC:効果UP>", "[Lv:確率]"), "攻撃[Lv:確率](3T)<OC:効果UP>");
 assert.equal(core.insertEffectNotation("攻撃[Lv](3T)<OC:効果UP>", "(2回・5T)"), "攻撃[Lv](2回・5T)<OC:効果UP>");
@@ -86,20 +95,21 @@ assert.deepEqual(fixedValueNormalization.skills[0].base.effects[0].values, ["10"
 const uiSettings = core.createDefaultContentSettings();
 uiSettings.classSkills[0].icon = "対魔力.png";
 uiSettings.bond.icon = "宝具威力アップ.png";
-uiSettings.classSkills[0].effects = [{ text: "弱体耐性をアップ", valueMode: "fixed", values: ["20"] }];
+uiSettings.classSkills[0].effects = [{ text: "弱体耐性をアップ", valueMode: "fixed", values: ["20"], chance: "100" }];
 uiSettings.skills[0].base.icon = "攻撃力アップ.png";
-uiSettings.skills[0].base.effects = [{ text: "攻撃力をアップ[Lv]", valueMode: "level10", values: ["10"] }];
+uiSettings.skills[0].base.effects = [{ text: "攻撃力をアップ[Lv]", valueMode: "level10", values: ["10"], chance: "101" }];
 uiSettings.skills[0].variants[0] = Object.assign(uiSettings.skills[0].variants[0], {
   enabled: true, changeMode: "all", icon: "クリティカル威力アップ.png", effects: [{ text: "差分効果", valueMode: "fixed", values: ["20"] }],
   upgraded: { enabled: true, icon: "NP獲得.png", effects: [] }
 });
 uiSettings.skills[0].upgraded = { enabled: true, icon: "NP増加.png", effects: [] };
-uiSettings.noble.base.effects = [{ text: "防御力をダウン[Lv](3T)<OC:効果UP>", valueMode: "oc5", values: ["10"] }];
+uiSettings.noble.base.effects = [{ text: "防御力をダウン[Lv](3T)<OC:効果UP>", valueMode: "oc5", values: ["10"], chance: "101" }];
 uiSettings.noble.variants[0] = Object.assign(uiSettings.noble.variants[0], {
   enabled: true, changeMode: "nameEffect", effects: [{ text: "差分効果", valueMode: "fixed", values: ["20"] }],
   upgraded: { enabled: true, effects: [] }
 });
 uiSettings.noble.upgraded = { enabled: true, effects: [] };
+uiSettings.bond.effects = [{ text: "味方全体の攻撃力をアップ", valueMode: "fixed", values: ["10"], chance: "100" }];
 const renderedEditors = core.renderContentSettingsEditors(core.normalizeContentSettings(uiSettings));
 assert.doesNotMatch(renderedEditors.classSkills, /data-content-action="toggleToken"/);
 assert.match(renderedEditors.skills, /data-token="\[Lv\]"/);
@@ -116,6 +126,11 @@ assert.doesNotMatch(renderedEditors.skills + renderedEditors.noble, /data-durati
 assert.match(renderedEditors.bond, /data-model-path="bond\.includeFieldCondition" checked/);
 assert.match(renderedEditors.bond, /「自身がフィールドにいる間、」を含める/);
 assert.doesNotMatch(renderedEditors.bond, /data-content-action="toggleToken"/);
+assert.match(renderedEditors.classSkills, /data-model-path="classSkills\.0\.effects\.0\.chance" value="100"/);
+assert.match(renderedEditors.skills, /data-model-path="skills\.0\.base\.effects\.0\.chance" value="101"/);
+assert.match(renderedEditors.noble, /data-model-path="noble\.base\.effects\.0\.chance" value="101"/);
+assert.match(renderedEditors.bond, /data-model-path="bond\.effects\.0\.chance" value="100"/);
+assert.match(renderedEditors.classSkills + renderedEditors.skills + renderedEditors.noble + renderedEditors.bond, /確率（％）/);
 assert.match(renderedEditors.classSkills, /data-skill-icon-picker-for="classSkills\.0\.icon"/);
 assert.match(renderedEditors.classSkills, /data-model-path="classSkills\.0\.icon" value="対魔力\.png"/);
 assert.match(renderedEditors.skills, /data-skill-icon-picker-for="skills\.0\.base\.icon"/);
@@ -423,6 +438,43 @@ const bondWithoutFieldText = core.replaceSource("", core.calculate(sample({
 }))).text;
 assert.match(bondWithoutFieldText, /&font\(,b,#00cc58\)\{謎のヒロイン〔降〕\}装備時のみ、&br\(\)味方全体の攻撃力をアップ\|10\|/);
 assert.doesNotMatch(bondWithoutFieldText, /自身がフィールドにいる間、/);
+
+const chanceSettings = core.createDefaultContentSettings();
+chanceSettings.classSkills = [
+  { name: "対魔力 A", icon: "対魔力.png", effects: [{ text: "自身の弱体耐性をアップ", valueMode: "fixed", values: ["20"], chance: "100" }] },
+  { name: "特殊能力 EX", icon: "特殊能力.png", effects: [{ raw: true, rawCode: "|~|直接記述|50|", chance: "999" }] }
+];
+chanceSettings.skills[0].base = {
+  name: "確率スキル A", icon: "確率スキル.png", ct: "8",
+  effects: [{ text: "自身の攻撃力をアップ[Lv](3T)", valueMode: "fixed", values: ["20"], chance: "101" }]
+};
+chanceSettings.noble.base = {
+  npType: "busterAll", npHits: "5", reading: "テスト", name: "確率宝具", rank: "A", category: "対宝具",
+  effects: [
+    { text: "敵全体の防御力をダウン[Lv](3T)<OC:効果UP>", valueMode: "fixed", values: ["20"], chance: "101" },
+    { effectType: "nobleAttack", attackTarget: "all", attackStrength: "base", chance: "100" },
+    { effectType: "specialAttack", specialTarget: "サーヴァント", valueMode: "fixed", values: ["150"], chance: "101" }
+  ]
+};
+chanceSettings.bond = {
+  name: "確率の記憶", icon: "確率の記憶.png", includeFieldCondition: false,
+  effects: [{ text: "味方全体の宝具威力をアップ", valueMode: "fixed", values: ["10"], chance: "100" }]
+};
+const chanceResult = core.calculate(sample({
+  trueName: "確率試験", classKey: "剣", npType: "busterAll", npHits: 5, contentSettings: chanceSettings
+}));
+const chanceClassSection = core.buildClassSkillSection(chanceResult.input.contentSettings, chanceResult);
+const chanceSkillSection = core.buildOwnedSkillsSection(chanceResult.input.contentSettings);
+const chanceNobleSection = core.buildNobleSection(chanceResult.input.contentSettings, chanceResult);
+const chanceBondSection = core.buildBondSection(chanceResult.input.contentSettings, chanceResult);
+assert.ok(chanceClassSection.includes("|~|自身の弱体耐性をアップ 確率100％|20|"), "クラススキルの100％以下は通常文字で末尾へ追加する");
+assert.ok(chanceClassSection.includes("|~|直接記述|50|"), "特殊記述は入力コードをそのまま維持する");
+assert.doesNotMatch(chanceClassSection, /直接記述[^\n]*確率999％/, "特殊記述へ確率を自動挿入しない");
+assert.ok(chanceSkillSection.includes("自身の攻撃力をアップ[Lv](3T) &color(#FF0000){確率101％}|>|>|>|>|>|>|>|>|>|20|"), "保有スキルの101％以上は赤字で最後尾へ追加する");
+assert.ok(chanceNobleSection.includes("敵全体の防御力をダウン[Lv](3T)<OC:効果UP> &color(#FF0000){確率101％}|>|>|>|>|20|"), "Lv・ターン・OC表記より後ろへ確率を追加する");
+assert.ok(chanceNobleSection.includes("＆強力な攻撃[Lv] &font(85%,#fff,#e44,b){　Buster(x1.5)　} 確率100％|300|400|450|475|500|"), "宝具攻撃へ通常文字の確率を追加する");
+assert.ok(chanceNobleSection.includes("＆〔サーヴァント〕特攻 &font(85%,#fff,#e44,b){　Buster(x1.5)　} &color(#FF0000){確率101％}|>|>|>|>|150|"), "特攻攻撃へ赤字の確率を追加する");
+assert.ok(chanceBondSection.includes("味方全体の宝具威力をアップ 確率100％|10|"), "絆礼装の100％以下は通常文字で末尾へ追加する");
 
 const nobleColorSettings = core.createDefaultContentSettings();
 nobleColorSettings.noble.base = {
