@@ -9,15 +9,17 @@ require("./FGO_StatusCalculator_atwiki.js");
 const core = globalThis.FGOStatusCalculatorCore;
 const calculatorSource = fs.readFileSync("FGO_StatusCalculator_atwiki.js", "utf8");
 const atwikiPageCode = fs.readFileSync("atwiki_page_code.txt", "utf8");
-assert.equal(core.VERSION, "1.5.8");
+assert.equal(core.VERSION, "1.5.9");
 assert.doesNotMatch(calculatorSource, /\bparent(?:Element)?\b/, "atwikiのinclude_js検査で拒否される文字列を含めない");
 assert.doesNotMatch(calculatorSource, /#include/, "atwikiのinclude_js検査で拒否されるinclude文字列を含めない");
 assert.doesNotMatch(atwikiPageCode, /^#include_js/m, "設置コードではinclude_jsを使用しない");
-assert.match(atwikiPageCode, /#javascript\(\)\{\{[\s\S]*<script type="text\/javascript" src="https:\/\/cdn\.jsdelivr\.net\/gh\/siroihuman\/fgo-status-calculator\/v1\.5\.8\/FGO_StatusCalculator_atwiki\.js"><\/script>[\s\S]*\}\}/);
+assert.match(atwikiPageCode, /#javascript\(\)\{\{[\s\S]*<script type="text\/javascript" src="https:\/\/cdn\.jsdelivr\.net\/gh\/siroihuman\/fgo-status-calculator\/v1\.5\.9\/FGO_StatusCalculator_atwiki\.js"><\/script>[\s\S]*\}\}/);
 assert.match(calculatorSource, /\{ label: "基本", traits: \["ギリシャ神話系男性"\] \}/);
 assert.doesNotMatch(calculatorSource, /label: "追加属性"/);
 assert.match(calculatorSource, /入力した特性：/);
 assert.doesNotMatch(calculatorSource, /基本設定から自動入力：|例：/);
+assert.match(calculatorSource, /data-gender-action="add">性別を追加/);
+assert.match(calculatorSource, /脚注（任意）/);
 assert.match(calculatorSource, /data-content-action="addClassSkill"/);
 assert.doesNotMatch(calculatorSource, /addOwnedSkill|addNoble|addBond|第四再臨/);
 assert.match(calculatorSource, /効果を追加/);
@@ -56,6 +58,15 @@ assert.deepEqual(core.effectTokens("class"), []);
 assert.deepEqual(core.effectTokens("bond"), []);
 assert.deepEqual(core.effectTokens("skill"), ["[Lv]", "[Lv:確率]"]);
 assert.deepEqual(core.effectTokens("noble"), ["[Lv]", "[Lv:確率]", "<OC:効果UP>", "<OC:回数UP>"]);
+assert.deepEqual(core.normalizeGenderEntries([{ gender: "男性", note: "デウカリオン" }, { gender: "女性", note: "ピュラ" }]), [
+  { gender: "男性", note: "デウカリオン" }, { gender: "女性", note: "ピュラ" }
+]);
+assert.deepEqual(core.normalizeGenderEntries(null, "女性"), [{ gender: "女性", note: "" }]);
+assert.equal(core.formatGenderEntry({ gender: "男性", note: "デウカリオン" }), "男性&footnote(デウカリオン)");
+const genderEditorHtml = core.genderEntriesEditor([{ gender: "男性", note: "デウカリオン" }, { gender: "女性", note: "ピュラ" }]);
+assert.match(genderEditorHtml, /data-gender-index="1" data-gender-field="gender"/);
+assert.match(genderEditorHtml, /value="ピュラ"/);
+assert.doesNotMatch(genderEditorHtml, /例：|placeholder=/);
 const normalizedNobleInputs = core.normalizeContentSettings({
   noble: {
     base: { npType: "quickAll", npHits: "9" },
@@ -227,6 +238,17 @@ assert.deepEqual(core.parseTraitsFromSource(generated.text), ["サーヴァン�
 assert.match(generated.text, /\/\/─┤クラススキル├/);
 assert.match(generated.text, /\/\/─┤絆礼装├/);
 assert.match(generated.text, /^\|~\|3\|3\|4\|5\|BGCOLOR\(#F88\):6\|DR&footnote/m);
+
+const multipleGenders = core.replaceSource("", core.calculate(sample({
+  growth: "平均", policy: "中立", personality: "善",
+  genders: [{ gender: "男性", note: "デウカリオン" }, { gender: "女性", note: "ピュラ" }]
+})));
+assert.match(multipleGenders.text, /^\|BGCOLOR\(#e6e6fa\):成長\|平均\|~\|中立\|善\|男性&footnote\(デウカリオン\)\|スター発生率\|[^|]+\|\n\|~\|~\|~\|~\|~\|女性&footnote\(ピュラ\)\|~\|~\|$/m);
+assert.match(multipleGenders.text, /^\|特性\|.*サーヴァント \/ 人型 \/ 男性 \/ 女性 \/ 中立 \/ 善 \/ 地の力/m);
+const singleGenderAgain = core.replaceSource(multipleGenders.text, core.calculate(sample({
+  gender: "女性", genders: [{ gender: "女性", note: "" }]
+})));
+assert.doesNotMatch(singleGenderAgain.text, /^\|~\|~\|~\|~\|~\|[^|\n]*\|~\|~\|$/m, "性別を減らした際は古い追加行を削除する");
 
 const oldSource = templateFile
   .replace(/【ページ名】/g, "旧名")
